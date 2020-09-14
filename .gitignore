@@ -1,5 +1,6 @@
 config/*
 config2/*
+!config/custom_components
 # config/.storage
 # config/.cloud
 # config/home-assistant_v2.db
