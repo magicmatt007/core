@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Pick a country to monitor",
-        "data": { "country": "Country" }
+        "data": { "username": "User Name" }
       }
     },
     "abort": { "already_configured": "This country is already configured." }

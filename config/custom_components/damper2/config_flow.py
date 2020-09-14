@@ -23,23 +23,24 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         errors = {}
 
-        if self._options is None:
-            self._options = {OPTION_WORLDWIDE: "Worldwide"}
-            coordinator = await get_coordinator(self.hass)
-            for case in sorted(
-                coordinator.data.values(), key=lambda case: case.country
-            ):
-                self._options[case.country] = case.country
+        # if self._options is None:
+        #     self._options = {OPTION_WORLDWIDE: "Worldwide"}
+        #     coordinator = await get_coordinator(self.hass)
+        #     for case in sorted(
+        #         coordinator.data.values(), key=lambda case: case.country
+        #     ):
+        #         self._options[case.country] = case.country
 
-        if user_input is not None:
-            await self.async_set_unique_id(user_input["country"])
-            self._abort_if_unique_id_configured()
-            return self.async_create_entry(
-                title=self._options[user_input["country"]], data=user_input
-            )
+        # if user_input is not None:
+        #     await self.async_set_unique_id(user_input["country"])
+        #     self._abort_if_unique_id_configured()
+        #     return self.async_create_entry(
+        #         title=self._options[user_input["country"]], data=user_input
+        #     )
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema({vol.Required("country"): vol.In(self._options)}),
+            # data_schema=vol.Schema({vol.Required("country"): vol.In(self._options)}),
+            data_schema=vol.Schema({vol.Required("username"): str}),
             errors=errors,
         )
