@@ -1,8 +1,8 @@
 # config/*
 config2/*
-config/.storeage
+config/.storage
 config/.cloud
-
+config/home-assistant_v2.db
 
 tests/testing_config/deps
 tests/testing_config/home-assistant.log
