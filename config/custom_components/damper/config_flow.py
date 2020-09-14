@@ -37,12 +37,15 @@ class ExampleConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         # Specify items in the order they are to be displayed in the UI:mm
         errors = {}
 
-        # data_schema = {
-        #     vol.Required("username"): str,
-        #     vol.Required("password"): str,
-        # }
+        if user_input is not None:
+            return self.async_abort
 
-        data_schema = {vol.Required("username"): str}
+        data_schema = {
+            vol.Required("username"): str,
+            vol.Required("password"): str,
+        }
+
+        # data_schema = {vol.Required("username"): str}
 
         # if self.show_advanced_options:
         #     data_schema["allow_groups"]: bool
