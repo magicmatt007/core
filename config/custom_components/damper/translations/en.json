@@ -6,10 +6,10 @@
     "step": {
       "user": {
         "data": {
-          "username": "User Name",
-          "password": "Password"
+          "username": "Dein Name",
+          "password": "Dein Passwort"
         },
-        "title": "Pick a country to monitor"
+        "title": "Choose"
       }
     }
   }
