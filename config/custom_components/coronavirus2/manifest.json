@@ -1,8 +1,0 @@
-{
-  "domain": "coronavirus2",
-  "name": "Coronavirus2 (COVID-19)",
-  "config_flow": true,
-  "documentation": "https://www.home-assistant.io/integrations/coronavirus",
-  "requirements": ["coronavirus==1.1.1"],
-  "codeowners": ["@home_assistant/core"]
-}
