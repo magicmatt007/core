@@ -1,0 +1,14 @@
+{
+  "domain": "damper5",
+  "name": "damper5a",
+  "config_flow": true,
+  "documentation": "https://www.home-assistant.io/integrations/damper5",
+  "requirements": [],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
+  "codeowners": [
+    "@magicmatt007"
+  ]
+}

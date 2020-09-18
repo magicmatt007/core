@@ -36,6 +36,7 @@ FLOWS = [
     "coolmaster",
     "coronavirus",
     "daikin",
+    "damper5",
     "deconz",
     "denonavr",
     "devolo_home_control",
