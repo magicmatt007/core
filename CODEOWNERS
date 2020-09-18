@@ -88,6 +88,7 @@ homeassistant/components/cover/* @home-assistant/core
 homeassistant/components/cpuspeed/* @fabaff
 homeassistant/components/cups/* @fabaff
 homeassistant/components/daikin/* @fredrike
+homeassistant/components/damper5/* @magicmatt007
 homeassistant/components/darksky/* @fabaff
 homeassistant/components/debugpy/* @frenck
 homeassistant/components/deconz/* @Kane610
