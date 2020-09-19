@@ -1,15 +1,14 @@
 {
   "config": {
     "abort": {
-      "already_configured": "This country is already configured."
+      "already_configured": "This damper is already configured."
     },
     "step": {
       "user": {
         "data": {
-          "username": "Dein Name",
-          "password": "Dein Passwort"
+          "nextAddress": "Next Modbus address to be assigned"
         },
-        "title": "Choose"
+        "title": "PUSH Button Addressing"
       }
     }
   }
