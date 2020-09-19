@@ -32,6 +32,9 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     _availableAddresses = None
     _availableAddresses = [1, 2, 3, 4]
 
+    _availableGroups = None
+    _availableGroups = ["Create a new group", "Group 1", "Group 2"]
+
     async def async_step_user(self, user_input=None):
         # Specify items in the order they are to be displayed in the UI
         errors = {}
@@ -40,7 +43,11 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_abort
 
         data_schema = vol.Schema(
-            {vol.Required("nextAddress"): vol.In(self._availableAddresses)}
+            {
+                vol.Required("nextAddress"): vol.In(self._availableAddresses),
+                vol.Optional("name"): str,
+                vol.Optional("group"): vol.In(self._availableGroups),
+            }
         )
 
         return self.async_show_form(
