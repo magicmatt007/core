@@ -6,7 +6,9 @@
     "step": {
       "user": {
         "data": {
-          "nextAddress": "Next Modbus address to be assigned"
+          "nextAddress": "Next Modbus address to be assigned",
+          "name": "Give this damper a name",
+          "group": "Crate a new group"
         },
         "title": "PUSH Button Addressing"
       }

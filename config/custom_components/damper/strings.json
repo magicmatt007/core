@@ -3,7 +3,11 @@
     "step": {
       "user": {
         "title": "PUSH Button Addressing",
-        "data": { "nextAddress": "Next Modbus address to be assigned" }
+        "data": {
+          "nextAddress": "Next Modbus address to be assigned3",
+          "name": "Give this damper a name",
+          "group": "Crate a new group"
+        }
       }
     },
     "abort": { "already_configured": "This damper is already configured." }
