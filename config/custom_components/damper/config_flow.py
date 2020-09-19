@@ -47,9 +47,19 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_finish(self, user_input=None):
         # Specify items in the order they are to be displayed in the UI
         errors = {}
+        data_schema = vol.Schema(
+            {vol.Required("meal"): str, vol.Required("unlock", default=False): bool}
+        )
 
         if user_input is not None:
-            return self.async_abort
+            # print(user_input)
+            # if user_input == "fish":
+            #     return self.async_show_form(
+            #         step_id="finish", data_schema=data_schema, errors=errors
+            #     )
+            return self.async_abort(
+                reason="not_supported", description_placeholders="incompatible"
+            )
 
         # if user_input is not None:
         #     return self.async_create_entry(
@@ -62,11 +72,13 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         #         },
         #     )
 
-        data_schema = vol.Schema({vol.Required("meal"): str})
-
         return self.async_show_form(
-            step_id="finish", data_schema=vol.Schema(data_schema), errors=errors
+            step_id="finish", data_schema=data_schema, errors=errors
         )
 
         # if self.show_advanced_options:
         #     data_schema["allow_groups"]: bool
+
+
+# class InvalidHost(exceptions.HomeAssistantError):
+#     """Error to indicate there is an invalid hostname."""
