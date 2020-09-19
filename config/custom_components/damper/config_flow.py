@@ -10,19 +10,6 @@ from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-# class ExampleConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-#     VERSION = 1
-
-#     async def async_step_user(self, info):
-#         if info is not None:
-#             pass  # TODO: process info
-
-#         return self.async_show_form(
-#             step_id="user", data_schema=vol.Schema({vol.Required("password"): str})
-#         )
-
-# class ExampleConfigFlow(data_entry_flow.FlowHandler):
-
 
 class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
@@ -40,7 +27,8 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            return self.async_abort
+            # return self.async_abort
+            return await self.async_step_finish()
 
         data_schema = vol.Schema(
             {
@@ -56,16 +44,29 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-        # data_schema = {
-        #     vol.Required("username"): str,
-        #     vol.Required("password"): str,
-        # }
+    async def async_step_finish(self, user_input=None):
+        # Specify items in the order they are to be displayed in the UI
+        errors = {}
 
-        # return self.async_show_form(
-        #     step_id="user",
-        #     data_schema=vol.Schema(data_schema),
-        #     errors=errors,
-        # )
+        if user_input is not None:
+            return self.async_abort
+
+        # if user_input is not None:
+        #     return self.async_create_entry(
+        #         title=user_input[CONF_NAME],
+        #         data={
+        #             CONF_HOST: device.host[0],
+        #             CONF_MAC: device.mac.hex(),
+        #             CONF_TYPE: device.devtype,
+        #             CONF_TIMEOUT: device.timeout,
+        #         },
+        #     )
+
+        data_schema = vol.Schema({vol.Required("meal"): str})
+
+        return self.async_show_form(
+            step_id="finish", data_schema=vol.Schema(data_schema), errors=errors
+        )
 
         # if self.show_advanced_options:
         #     data_schema["allow_groups"]: bool
