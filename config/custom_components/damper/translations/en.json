@@ -1,7 +1,8 @@
 {
   "config": {
     "abort": {
-      "already_configured": "This damper is already configured."
+      "already_configured": "This damper is already configured.",
+      "not_supported": "this is not supported"
     },
     "step": {
       "user": {
@@ -11,6 +12,13 @@
           "group": "Crate a new group"
         },
         "title": "PUSH Button Addressing"
+      },
+      "finish": {
+        "title": "Finishing",
+        "data": {
+          "meal": "Order your lunch",
+          "unlock": "Unlock the feature"
+        }
       }
     }
   }
