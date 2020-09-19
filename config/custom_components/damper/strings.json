@@ -2,10 +2,10 @@
   "config": {
     "step": {
       "user": {
-        "title": "Choose",
-        "data": { "country": "Country" }
+        "title": "PUSH Button Addressing",
+        "data": { "nextAddress": "Next Modbus address to be assigned" }
       }
     },
-    "abort": { "already_configured": "This country is already configured." }
+    "abort": { "already_configured": "This damper is already configured." }
   }
 }

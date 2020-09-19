@@ -1,15 +1,15 @@
 {
-    "config": {
-        "abort": {
-            "already_configured": "This country is already configured."
+  "config": {
+    "abort": {
+      "already_configured": "This country++ is already configured."
+    },
+    "step": {
+      "user": {
+        "data": {
+          "country": "Country++"
         },
-        "step": {
-            "user": {
-                "data": {
-                    "country": "Country"
-                },
-                "title": "Pick a country to monitor"
-            }
-        }
+        "title": "Pick two++ country to monitor"
+      }
     }
+  }
 }
