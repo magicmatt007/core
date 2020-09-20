@@ -9,7 +9,8 @@
         "data": {
           "nextAddress": "Next Modbus address to be assigned",
           "name": "Give this damper a name",
-          "group": "Crate a new group"
+          "group": "Create a new group",
+          "finish": "Finish adding dampers"
         },
         "title": "PUSH Button Addressing"
       },

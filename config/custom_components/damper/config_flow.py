@@ -25,15 +25,33 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None):
         # Specify items in the order they are to be displayed in the UI
         errors = {}
+        print(user_input)
 
         if user_input is not None:
             # return self.async_abort
-            return await self.async_step_finish()
+
+            if user_input["finish"]:
+                # To Do:
+                # ADD the ????????????
+                # Finish adding dampers
+                return self.async_create_entry(
+                    title="Damper HUB A",
+                    data={"Serial Port": "COM5", "Comment": "Test integration"},
+                )
+            # Otherwise, add damper:
+            self._availableAddresses.remove(user_input["nextAddress"])
+
+            # return await self.async_step_finish()
 
         data_schema = {
-            vol.Required("nextAddress"): vol.In(self._availableAddresses),
-            vol.Optional("name"): str,
+            vol.Required(
+                "nextAddress", default=str(self._availableAddresses[0])
+            ): vol.In(self._availableAddresses),
+            vol.Optional(
+                "name", default="Modbus " + str(self._availableAddresses[0])
+            ): str,
             vol.Optional("group"): vol.In(self._availableGroups),
+            vol.Optional("finish", default=False): bool,
         }
 
         return self.async_show_form(
