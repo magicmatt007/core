@@ -30,33 +30,40 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             # return self.async_abort
             return await self.async_step_finish()
 
-        data_schema = vol.Schema(
-            {
-                vol.Required("nextAddress"): vol.In(self._availableAddresses),
-                vol.Optional("name"): str,
-                vol.Optional("group"): vol.In(self._availableGroups),
-            }
-        )
+        data_schema = {
+            vol.Required("nextAddress"): vol.In(self._availableAddresses),
+            vol.Optional("name"): str,
+            vol.Optional("group"): vol.In(self._availableGroups),
+        }
 
         return self.async_show_form(
             step_id="user",
-            data_schema=data_schema,
+            data_schema=vol.Schema(data_schema),
             errors=errors,
         )
 
     async def async_step_finish(self, user_input=None):
         # Specify items in the order they are to be displayed in the UI
         errors = {}
-        data_schema = vol.Schema(
-            {vol.Required("meal"): str, vol.Required("unlock", default=False): bool}
-        )
+        data_schema = {
+            vol.Required("meal"): str,
+            vol.Required("unlock", default=False): bool,
+        }
+
+        data_schema["allow_groups"]: bool
 
         if user_input is not None:
-            # print(user_input)
-            # if user_input == "fish":
-            #     return self.async_show_form(
-            #         step_id="finish", data_schema=data_schema, errors=errors
-            #     )
+            print(user_input)
+            if user_input["unlock"]:
+                return self.async_create_entry(
+                    title="Title of the entry",
+                    data={"something_special": user_input["meal"]},
+                )
+
+                # return self.async_show_form(
+                #     step_id="finish", data_schema=data_schema, errors=errors
+                # )
+
             return self.async_abort(
                 reason="not_supported", description_placeholders="incompatible"
             )
@@ -73,7 +80,7 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         #     )
 
         return self.async_show_form(
-            step_id="finish", data_schema=data_schema, errors=errors
+            step_id="finish", data_schema=vol.Schema(data_schema), errors=errors
         )
 
         # if self.show_advanced_options:
