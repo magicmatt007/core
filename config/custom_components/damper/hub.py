@@ -15,7 +15,7 @@ from .modbusAutoAddress import *
 # import modbusAutoAddress
 from .modbusInstrument import ModbusInstrument
 
-# DEBUGGING: python -m config.custom_components.damper.test
+# DEBUGGING: python -m config.custom_components.damper.hub
 
 # https://pythonexamples.org/python-pickle-class-object/
 # https://stackoverflow.com/questions/44166092/why-is-pickle-not-serializing-my-array-of-classes
@@ -124,7 +124,8 @@ def modbusAssignAddress(nextAddress):
 
 if __name__ == "__main__":
 
-    modbusAssignAddress(1)
+    response = modbusAssignAddress(1)
+    print(response)
 
     ### Use this to store:
     hub = Hub()
