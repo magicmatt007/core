@@ -41,37 +41,35 @@ override_GoToMin = 4
 override_GoToMax = 5
 
 
-
-
-
 ####################################
-
-
-
-
-
 
 
 def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the sensor platform."""
-    add_entities([ExampleDamper("Damper 1",1)])
+    add_entities([ExampleDamper("Damper 1", 1)])
     # add_entities([ExampleDamper("Damper 2",2)])
-    add_entities([ExampleDamper("Damper 3",103)])
+    add_entities([ExampleDamper("Damper 3", 103)])
+
+    ## TO DO: Implement routine to add dampers, which were added via config_flow and are persistantly stored in a pickle file:
+    # import hub
+    # for damper in DAMPERS:
+    #    add_entities(FireDamper(damper.name, damper.modbus_address))
 
 
 # class ExampleDamper(Entity):
 class ExampleDamper(CoverEntity):
     """Representation of a Cover."""
 
-    def __init__(self,name,modbus_address):
+    def __init__(self, name, modbus_address):
         """Initialize the sensor."""
+        self._name = name
+        self._modbus_address = modbus_address
         self._state = STATE_CLOSED
         self._current_cover_position = 0
         self._is_closed = True
         self._is_opening = False
         self._is_closing = True
-        self._name = name
-        self._modbus_address = modbus_address
+        # Additional custom attributes for the Damper implementation of Cover:
         self._attributes = {"Custom 1": 1, "Custom 2": "Hello World"}
 
     @property
@@ -84,7 +82,7 @@ class ExampleDamper(CoverEntity):
     def state(self):
         """Return the state of the sensor."""
         return self._state
-    
+
     @property
     def is_closed(self):
         """Return the closed state of the damper."""
@@ -100,7 +98,6 @@ class ExampleDamper(CoverEntity):
         """Return if the cover is closing or not."""
         return self._is_closing
 
-    
     @property
     def current_cover_position(self):
         """Return the closed state of the damper."""
@@ -133,32 +130,33 @@ class ExampleDamper(CoverEntity):
         return self._attributes
 
         # TIP: https://developers.home-assistant.io/docs/dev_101_states
-        # Entities also have a similar property state_attributes, which normally doesn't need to be defined by new platforms. 
-        # This property is used by base components to add standard sets of attributes to a state. 
+        # Entities also have a similar property state_attributes, which normally doesn't need to be defined by new platforms.
+        # This property is used by base components to add standard sets of attributes to a state.
         # Example: The light component uses state_attributes to add brightness to the state dictionary. If you are designing a new component, you should define state_attributes instead.
 
     async def async_open_cover(self, **kwargs):
         """Open the cover."""
-        self._state = STATE_OPENING	
+        self._state = STATE_OPENING
         self._is_opening = True
-       
+
         # while(self._current_cover_position < 100):
         #     self._current_cover_position += 1
         #     await asyncio.sleep(0.1)
         # self._state = STATE_OPEN
-       
+
         # self._current_cover_position = 100
 
         instruments = []
-        instruments.append(ModbusInstrument(self._modbus_address))  # Create new instrument with address 5 and append it to the instruments array, that keeps all connected devices
+        instruments.append(
+            ModbusInstrument(self._modbus_address)
+        )  # Create new instrument with address 5 and append it to the instruments array, that keeps all connected devices
         i = instruments[0]
         i.setpoint(10000)
-
 
     async def async_close_cover(self, **kwargs):
         """Open the cover."""
         self._state = STATE_CLOSING
-        self._is_closing = True	
+        self._is_closing = True
 
         # while(self._current_cover_position > 0):
         #     self._current_cover_position += -1
@@ -168,24 +166,27 @@ class ExampleDamper(CoverEntity):
         # self._current_cover_position = 0
 
         instruments = []
-        instruments.append(ModbusInstrument(self._modbus_address))  # Create new instrument with address 5 and append it to the instruments array, that keeps all connected devices
+        instruments.append(
+            ModbusInstrument(self._modbus_address)
+        )  # Create new instrument with address 5 and append it to the instruments array, that keeps all connected devices
         i = instruments[0]
         i.setpoint(0)
 
     async def async_set_cover_position(self, **kwargs):
         """Move the cover to a specific position."""
-        
+
         self._current_cover_position = kwargs[ATTR_POSITION]
         if self._current_cover_position == 0:
             self._state = STATE_CLOSED
         else:
             self._state = STATE_OPEN
 
-
         # # Modbus RTU tests: ###########################################
 
         instruments = []
-        instruments.append(ModbusInstrument(self._modbus_address))  # Create new instrument with address 5 and append it to the instruments array, that keeps all connected devices
+        instruments.append(
+            ModbusInstrument(self._modbus_address)
+        )  # Create new instrument with address 5 and append it to the instruments array, that keeps all connected devices
         # print(f"Total instruments: {instruments[0].instrumentCount}")
 
         i = instruments[0]
@@ -197,15 +198,12 @@ class ExampleDamper(CoverEntity):
 
         # i.overrideControl(override_off)
         # i.setpoint(6000)
-        i.setpoint(self._current_cover_position*100)
+        i.setpoint(self._current_cover_position * 100)
 
         # # i.monitorPositionChange()
         # print(f"Current Position: {(i.actualPosition()/10000*90):1f}°")
 
-
         # # Modbus RTU tests: ###########################################
-
-
 
     async def async_update(self):
         """Fetch new state data for the sensor.
@@ -214,9 +212,11 @@ class ExampleDamper(CoverEntity):
         """
 
         instruments = []
-        instruments.append(ModbusInstrument(self._modbus_address))  # Create new instrument with address 5 and append it to the instruments array, that keeps all connected devices
+        instruments.append(
+            ModbusInstrument(self._modbus_address)
+        )  # Create new instrument with address 5 and append it to the instruments array, that keeps all connected devices
         i = instruments[0]
-        self._current_cover_position = i.actualPosition()/100
+        self._current_cover_position = i.actualPosition() / 100
 
         # self._state = 23
         await asyncio.sleep(0.1)
