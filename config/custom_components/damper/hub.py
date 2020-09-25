@@ -55,6 +55,9 @@ class Hub:
         self._dampers.append(damper)
 
     def modbusAssignAddress(self, nextAddress):
+
+        VIRTUAL_MODBUS_DEBUG = True  ## used to test without a Modbus USB stick
+
         #### Values for push button config:  ####
         newSlaveAddress = nextAddress
         newBaudrate = 2  # 0 = auto / 1 = 9600 / 2 = 19200 3 = 38400 / 4 = 57600 / 5 = 76800  6 = 115200
@@ -63,19 +66,33 @@ class Hub:
         #### end #####
 
         try:
-            success = configureSlave(  # modbusAutoAddress.configureSlave(
-                newSlaveAddress, newBaudrate, newTransmittionMode, newTermination
-            )
-            time.sleep(3)  # added temporarily for debugging GDB111.1E/MO
-            if success:
-                instrument = ModbusInstrument(newSlaveAddress)
-                type_asn = instrument.typeASN()
-                manufacturing_date = instrument.factoryDate()
-                factory_index = instrument.factoryIndex()
-                factory_seq_num = instrument.factorySeqNum()
+            if not VIRTUAL_MODBUS_DEBUG:
+                success = configureSlave(  # modbusAutoAddress.configureSlave(
+                    newSlaveAddress, newBaudrate, newTransmittionMode, newTermination
+                )
+            else:
+                success = True
 
-                addNewDamperToDb(
+            time.sleep(3)  # added temporarily for debugging GDB111.1E/MO
+
+            if success:
+                if VIRTUAL_MODBUS_DEBUG == False:
+                    instrument = ModbusInstrument(newSlaveAddress)
+                    type_asn = instrument.typeASN()
+                    manufacturing_date = instrument.factoryDate()
+                    factory_index = instrument.factoryIndex()
+                    factory_seq_num = instrument.factorySeqNum()
+                else:
+                    type_asn = "GRA126"
+                    manufacturing_date = "31.12.2020"
+                    factory_index = "A"
+                    factory_seq_num = "01234567890"
+
+                name = f"Modbus {newSlaveAddress}"  # TODO: get name from user input
+
+                self.addNewDamperToDb(
                     newSlaveAddress,
+                    name,
                     type_asn,
                     manufacturing_date,
                     factory_index,
@@ -163,7 +180,11 @@ class Damper:
 if __name__ == "__main__":
     print("hello")
 
-    # ## Load stored data:
+    hub = Hub("My Hub", "/serialbyid/bla")
+    hub.modbusAssignAddress(1)
+    hub.print_hub()
+
+    # ## Generate & store data:
     # hub = Hub("My Hub", "/serialbyid/bla")
     # hub.print_hub()
     # hub.addNewDamperToDb(101, "Modbus 101", "GRA126", "31.12.2019", "A", "1234567890")
@@ -171,12 +192,10 @@ if __name__ == "__main__":
     # hub.print_hub()
     # hub.store()
 
-    ## Load stored data:
-    hub = Hub("My Hub", "/serialbyid/bla")
-    hub = hub.get_stored_data()
-    # print(type(hub))
-    # hub.print_hub()
-    hub.print_damper(hub._dampers[1])
+    # ## Load stored data:
+    # hub = Hub("My Hub", "/serialbyid/bla")
+    # hub = hub.get_stored_data()
+    # hub.print_damper(hub._dampers[1])
 
 
 # """
