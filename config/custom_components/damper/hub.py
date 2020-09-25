@@ -28,11 +28,108 @@ print(FILE)
 
 class Hub:
     # def __init__(self,damper):
-    def __init__(self):
+    def __init__(self, name, com):
         # self.Main = None
-        self.Main = None
-        self.dampers = []
-        self.com = ""
+        self._name = name
+        self._com = com
+        self._dampers = []
+
+    def addNewDamperToDb(
+        self,
+        newSlaveAddress,
+        name,
+        type_asn,
+        manufacturing_date,
+        factory_index,
+        factory_seq_num,
+    ):
+        # name = f"Modbus {newSlaveAddress}"
+        damper = Damper(
+            newSlaveAddress,
+            name,
+            type_asn,
+            manufacturing_date,
+            factory_index,
+            factory_seq_num,
+        )
+        self._dampers.append(damper)
+
+    def modbusAssignAddress(self, nextAddress):
+        #### Values for push button config:  ####
+        newSlaveAddress = nextAddress
+        newBaudrate = 2  # 0 = auto / 1 = 9600 / 2 = 19200 3 = 38400 / 4 = 57600 / 5 = 76800  6 = 115200
+        newTransmittionMode = 2  # 2 = 1-8-N-1
+        newTermination = 0  # 0 = off   1 = on
+        #### end #####
+
+        try:
+            success = configureSlave(  # modbusAutoAddress.configureSlave(
+                newSlaveAddress, newBaudrate, newTransmittionMode, newTermination
+            )
+            time.sleep(3)  # added temporarily for debugging GDB111.1E/MO
+            if success:
+                instrument = ModbusInstrument(newSlaveAddress)
+                type_asn = instrument.typeASN()
+                manufacturing_date = instrument.factoryDate()
+                factory_index = instrument.factoryIndex()
+                factory_seq_num = instrument.factorySeqNum()
+
+                addNewDamperToDb(
+                    newSlaveAddress,
+                    type_asn,
+                    manufacturing_date,
+                    factory_index,
+                    factory_seq_num,
+                )
+
+            return success
+
+        except Exception as e:
+            print(
+                "Error (modbusAssignAddr). Have you connected the Modbus interface?"
+                + str(e)
+            )
+
+            return False
+
+    def print_hub(self):
+        # print(hub.Main.__dict__)
+        print(f"Name: {self._name}")
+        print(f"COM: {self._com}")
+        for damper in self._dampers:
+            print(damper.__dict__)
+
+    def store(self):
+
+        # hubs = []
+        # hubs.append(hub)
+        # hubs = hub
+
+        # """Store to file."""
+        with open(FILE, "wb") as myfile:
+            # pickle.dump({feed_url: timestamp}, myfile, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(hub, myfile, pickle.HIGHEST_PROTOCOL)
+        myfile.close()
+
+    def get_stored_data(self):
+        """Return stored data."""
+        if not exists(FILE):
+            print("File doesn't exist")
+            return {}
+        print("Loading data")
+        with open(FILE, "rb") as myfile:
+            content = pickle.load(myfile)
+        myfile.close()
+        # self = content
+        return content
+
+    def print_dampers(self):
+        for damper in self._dampers:
+            print(damper.__dict__)
+            # print(repr(damper))
+
+    def print_damper(self, damper):
+        print(damper.__dict__)
 
 
 class Damper:
@@ -42,105 +139,44 @@ class Damper:
     _is_open: bool
     _modbus_address: int
 
-    def __init__(self, name, modbus_address):
-        self._name = name
+    def __init__(
+        self,
+        modbus_address,
+        name,
+        type_asn,
+        manufacturing_date,
+        factory_index,
+        factory_seq_num,
+    ):
         self._modbus_address = modbus_address
+        self._name = name
+        self._type_asn = type_asn
+        self._manufacturing_date = manufacturing_date
+        self._factory_index = factory_index
+        self._factory_seq_num = factory_seq_num
+
         self._id = 1  # TO DO: Remove or do a proper implementation
         self._is_closed = True
         self._is_open = False
 
 
-def print_hub(hub):
-    # print(hub.Main.__dict__)
-    print(hub.Main)
-    for damper in hub.dampers:
-        print(damper.__dict__)
-
-
-def store(hub):
-
-    # hubs = []
-    # hubs.append(hub)
-    # hubs = hub
-
-    # """Store to file."""
-    with open(FILE, "wb") as myfile:
-        # pickle.dump({feed_url: timestamp}, myfile, pickle.HIGHEST_PROTOCOL)
-        pickle.dump(hub, myfile, pickle.HIGHEST_PROTOCOL)
-    myfile.close()
-
-
-def get_stored_data():
-    """Return stored data."""
-    if not exists(FILE):
-        print("File doesn't exist")
-        return {}
-    print("Loading data")
-    with open(FILE, "rb") as myfile:
-        content = pickle.load(myfile)
-    myfile.close()
-    return content
-
-
-def print_dampers(dampers):
-    for damper in dampers:
-        print(damper.__dict__)
-        # print(repr(damper))
-
-
-def print_damper(damper):
-    print(damper.__dict__)
-
-
-def modbusAssignAddress(nextAddress):
-    #### Values for push button config:  ####
-    newSlaveAddress = nextAddress
-    newBaudrate = 2  # 0 = auto / 1 = 9600 / 2 = 19200 3 = 38400 / 4 = 57600 / 5 = 76800  6 = 115200
-    newTransmittionMode = 2  # 2 = 1-8-N-1
-    newTermination = 0  # 0 = off   1 = on
-    #### end #####
-
-    try:
-        success = configureSlave(  # modbusAutoAddress.configureSlave(
-            newSlaveAddress, newBaudrate, newTransmittionMode, newTermination
-        )
-        time.sleep(3)  # added temporarily for debugging GDB111.1E/MO
-        # instrument = ModbusInstrument(newSlaveAddress)
-        # type_asn = instrument.typeASN()
-        # manufacturing_date = instrument.factoryDate()
-        # factory_index = instrument.factoryIndex()
-        # factory_seq_num = instrument.factorySeqNum()
-
-        return success
-
-    except Exception as e:
-        print(
-            "Error (modbusAssignAddr). Have you connected the Modbus interface?"
-            + str(e)
-        )
-
-        return False
-
-
 if __name__ == "__main__":
+    print("hello")
 
-    response = modbusAssignAddress(1)
-    print(response)
+    # ## Load stored data:
+    # hub = Hub("My Hub", "/serialbyid/bla")
+    # hub.print_hub()
+    # hub.addNewDamperToDb(101, "Modbus 101", "GRA126", "31.12.2019", "A", "1234567890")
+    # hub.addNewDamperToDb(102, "Modbus 102", "GRA126", "31.11.2019", "A", "1234567891")
+    # hub.print_hub()
+    # hub.store()
 
-    ### Use this to store:
-    hub = Hub()
-    hub.Main = "My hub"
-    hub.dampers.append(Damper("Damper 1", 101))
-    hub.dampers.append(Damper("Damper 2", 102))
-    print_hub(hub)
-
-    # store(hub)
-
-    ### Use this to load:
-    # hub = get_stored_data()
+    ## Load stored data:
+    hub = Hub("My Hub", "/serialbyid/bla")
+    hub = hub.get_stored_data()
     # print(type(hub))
-    # print(hub)
-    # print_hub(hub)
+    # hub.print_hub()
+    hub.print_damper(hub._dampers[1])
 
 
 # """
