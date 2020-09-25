@@ -7,6 +7,7 @@ from homeassistant import config_entries
 # from homeassistant import data_entry_flow
 # from . import get_coordinator
 from .const import DOMAIN
+from .hub import Hub
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -17,10 +18,12 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
 
     _availableAddresses = None
-    _availableAddresses = [1, 2, 3, 4]
+    _availableAddresses = [1, 2, 3, 4, 5, 6]
 
     _availableGroups = None
     _availableGroups = ["Create a new group", "Group 1", "Group 2"]
+
+    hub = Hub("My Hub", "/serialbyid/bla")
 
     async def async_step_user(self, user_input=None):
         # Specify items in the order they are to be displayed in the UI
@@ -39,6 +42,9 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     data={"Serial Port": "COM5", "Comment": "Test integration"},
                 )
             # Otherwise, add damper:
+            # hub = Hub("My Hub", "/serialbyid/bla")
+            self.hub.modbusAssignAddress(user_input["nextAddress"])
+            self.hub.print_hub()
             self._availableAddresses.remove(user_input["nextAddress"])
 
             # return await self.async_step_finish()
