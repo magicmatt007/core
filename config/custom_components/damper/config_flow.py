@@ -56,19 +56,16 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             # return self.async_abort
 
             if user_input["finish"]:
-                # To Do:
-                # ADD the ????????????
-                # Finish adding dampers
+                # Create hass entry for the hub (this also triggers __init__.py)
                 return self.async_create_entry(
-                    title="Damper HUB A",
-                    data={"Serial Port": "COM5", "Comment": "Test integration"},
+                    title=self.hub.name,
+                    data={"com": self.hub.com, "Comment": "Test integration"},
                 )
+
             # Otherwise, add damper:
             self.hub.modbusAssignAddress(user_input["nextAddress"], user_input["name"])
             self.hub.print_hub()
             self._availableAddresses.remove(user_input["nextAddress"])
-
-            # return await self.async_step_finish()
 
         data_schema = {
             vol.Required(
