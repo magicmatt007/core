@@ -59,8 +59,8 @@ override_GoToMax = 5
 async def async_setup_entry(hass, config_entry, async_add_devices):
     """Add cover for passed config_entry in HA."""
     print("hello world")
-    async_add_devices([ExampleDamper("Damper 1", 1)])
-    async_add_devices([ExampleDamper("Damper 10", 10)])
+    async_add_devices([DamperCover("Damper 1", 1)])
+    async_add_devices([DamperCover("Damper 10", 10)])
 
 
 # async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
@@ -77,7 +77,7 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
 
 
 # class ExampleDamper(Entity):
-class ExampleDamper(CoverEntity):
+class DamperCover(CoverEntity):
     """Representation of a Cover."""
 
     should_poll = False
@@ -157,11 +157,6 @@ class ExampleDamper(CoverEntity):
         """Return the device class."""
 
         return SUPPORT_CLOSE | SUPPORT_OPEN | SUPPORT_SET_POSITION
-
-    @property
-    def position_ms(self):
-        """Return the device class."""
-        return self._current_cover_position
 
     @property
     def device_state_attributes(self):
