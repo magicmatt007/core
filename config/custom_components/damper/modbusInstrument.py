@@ -14,10 +14,10 @@ class ModbusInstrument:
     instrumentCount = 0
 
     # Adjust modbus parameters to match configuration:
-    # port = "/dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0" #"usb-1a86_USB2.0-Serial-if00-port0" #-> ../../ttyUSB0  RaspberryP
+    port = "/dev/serial/by-id/usb-1a86_USB2.0-Serial-if00-port0"  # "usb-1a86_USB2.0-Serial-if00-port0" #-> ../../ttyUSB0  RaspberryP
     # port = "com5"  # Windows10 left port on laptop
     # port = "com10"  # "com6" # Windows10 docking station
-    port = "com4"  # Windows10 HP right port on laptop
+    # port = "com4"  # Windows10 HP right port on laptop
     baudrate = 19200  # 9600
     bytesize = 8
     parity = serial.PARITY_NONE
