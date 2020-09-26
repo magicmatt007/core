@@ -33,12 +33,12 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             # hub = Hub("My Hub", "/serialbyid/bla")
-            hub = Hub(user_input["name"], user_input["com"])
-            return await self.async_step_finish()
+            self.hub = Hub(user_input["name"], user_input["com"])
+            return await self.async_step_devices()
 
         data_schema = {
             vol.Required("name", default="Hub 1"): str,
-            vol.Required("port", default="/serialbyid/blabla"): str,
+            vol.Required("com", default="/serialbyid/blabla"): str,
         }
 
         return self.async_show_form(
@@ -82,36 +82,36 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         }
 
         return self.async_show_form(
-            step_id="user",
+            step_id="devices",
             data_schema=vol.Schema(data_schema),
             errors=errors,
         )
 
-    async def async_step_finish(self, user_input=None):
-        # Specify items in the order they are to be displayed in the UI
-        errors = {}
-        data_schema = {
-            vol.Required("meal"): str,
-            vol.Required("unlock", default=False): bool,
-        }
+        # async def async_step_finish(self, user_input=None):
+        #     # Specify items in the order they are to be displayed in the UI
+        #     errors = {}
+        #     data_schema = {
+        #         vol.Required("meal"): str,
+        #         vol.Required("unlock", default=False): bool,
+        #     }
 
-        data_schema["allow_groups"]: bool
+        #     data_schema["allow_groups"]: bool
 
-        if user_input is not None:
-            print(user_input)
-            if user_input["unlock"]:
-                return self.async_create_entry(
-                    title="Title of the entry",
-                    data={"something_special": user_input["meal"]},
-                )
+        #     if user_input is not None:
+        #         print(user_input)
+        #         if user_input["unlock"]:
+        #             return self.async_create_entry(
+        #                 title="Title of the entry",
+        #                 data={"something_special": user_input["meal"]},
+        #             )
 
-                # return self.async_show_form(
-                #     step_id="finish", data_schema=data_schema, errors=errors
-                # )
+        #             # return self.async_show_form(
+        #             #     step_id="finish", data_schema=data_schema, errors=errors
+        #             # )
 
-            return self.async_abort(
-                reason="not_supported", description_placeholders="incompatible"
-            )
+        #         return self.async_abort(
+        #             reason="not_supported", description_placeholders="incompatible"
+        #         )
 
         # if user_input is not None:
         #     return self.async_create_entry(

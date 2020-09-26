@@ -6,13 +6,21 @@
     },
     "step": {
       "user": {
+        "title": "PUSH Button Addressing - HUB",
+        "data": {
+          "nextAddress": "Next Modbus address to be assigned",
+          "name": "Give this hub a name",
+          "com": "Select the modbus device port"
+        }
+      },
+      "devices": {
+        "title": "PUSH Button Addressing - DEVICES",
         "data": {
           "nextAddress": "Next Modbus address to be assigned",
           "name": "Give this damper a name",
           "group": "Create a new group",
           "finish": "Finish adding dampers"
-        },
-        "title": "PUSH Button Addressing"
+        }
       },
       "finish": {
         "title": "Finishing",
