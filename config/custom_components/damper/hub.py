@@ -43,7 +43,6 @@ class Hub:
         factory_index,
         factory_seq_num,
     ):
-        # name = f"Modbus {newSlaveAddress}"
         damper = Damper(
             newSlaveAddress,
             name,
@@ -88,7 +87,7 @@ class Hub:
                     factory_index = "A"
                     factory_seq_num = "01234567890"
 
-                if not name:
+                if not name:  # If no name is provided by the user, then auto assign
                     name = f"Modbus {newSlaveAddress}"  # TODO: get name from user input
 
                 self.addNewDamperToDb(

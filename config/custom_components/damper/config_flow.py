@@ -24,9 +24,30 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     _availableGroups = None
     _availableGroups = ["Create a new group", "Group 1", "Group 2"]
 
-    hub = Hub("My Hub", "/serialbyid/bla")
+    hub = None
 
     async def async_step_user(self, user_input=None):
+        # Specify items in the order they are to be displayed in the UI
+        errors = {}
+        print(user_input)
+
+        if user_input is not None:
+            # hub = Hub("My Hub", "/serialbyid/bla")
+            hub = Hub(user_input["name"], user_input["com"])
+            return await self.async_step_finish()
+
+        data_schema = {
+            vol.Required("name", default="Hub 1"): str,
+            vol.Required("port", default="/serialbyid/blabla"): str,
+        }
+
+        return self.async_show_form(
+            step_id="user",
+            data_schema=vol.Schema(data_schema),
+            errors=errors,
+        )
+
+    async def async_step_devices(self, user_input=None):
         # Specify items in the order they are to be displayed in the UI
         errors = {}
         print(user_input)
