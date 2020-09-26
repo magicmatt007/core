@@ -1,0 +1,26 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "This damper is already configured.",
+      "not_supported": "this is not supported"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "nextAddress": "Next Modbus address to be assigned",
+          "name": "Give this damper a name",
+          "group": "Create a new group",
+          "finish": "Finish adding dampers"
+        },
+        "title": "PUSH Button Addressing"
+      },
+      "finish": {
+        "title": "Finishing",
+        "data": {
+          "meal": "Order your lunch",
+          "unlock": "Unlock the feature"
+        }
+      }
+    }
+  }
+}

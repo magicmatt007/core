@@ -28,7 +28,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Store an instance of the "connecting" class that does the work of speaking
     # with your actual devices.
     print("Hello from init, async_setup_entry")
-    # hass.data[DOMAIN][entry.entry_id] = hub.Hub(hass, entry.data["host"])
+    hass.data[DOMAIN][entry.entry_id] = hub.Hub(hass, entry.data["host"])
 
     # This creates each HA object for each platform your device requires.
     # It's done by calling the `async_setup_entry` function in each platform module.

@@ -60,7 +60,6 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
     """Add cover for passed config_entry in HA."""
     print("hello world")
     async_add_devices([ExampleDamper("Damper 1", 1)])
-    async_add_devices([ExampleDamper("Damper 10", 10)])
 
 
 # async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
@@ -80,8 +79,6 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
 class ExampleDamper(CoverEntity):
     """Representation of a Cover."""
 
-    should_poll = False
-
     def __init__(self, name, modbus_address):
         """Initialize the sensor."""
         self._name = name
@@ -93,23 +90,6 @@ class ExampleDamper(CoverEntity):
         self._is_closing = True
         # Additional custom attributes for the Damper implementation of Cover:
         self._attributes = {"Custom 1": 1, "Custom 2": "Hello World"}
-
-    @property
-    def unique_id(self):
-        """Return Unique ID string."""
-        return f"{self._modbus_address}_cover"
-
-    @property
-    def device_info(self):
-        """Information about this entity/device."""
-        return {
-            "identifiers": {(DOMAIN, self._modbus_address)},
-            # If desired, the name for the device could be different to the entity
-            "name": self._name,
-            "sw_version": "0.9",
-            "model": "MK2",
-            "manufacturer": "manufacturer",
-        }
 
     @property
     def name(self):
