@@ -2,7 +2,7 @@ import logging
 
 import voluptuous as vol
 
-from homeassistant import config_entries
+from homeassistant import config_entries, core, exceptions
 
 # from homeassistant import data_entry_flow
 # from . import get_coordinator
@@ -13,6 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for Damper."""
 
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_PUSH
@@ -24,9 +25,11 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     _availableGroups = None
     _availableGroups = ["Create a new group", "Group 1", "Group 2"]
 
-    hub = Hub("My Hub", "/serialbyid/bla")
+    hass: core.HomeAssistant
+    hub = Hub(hass, "My Hub", "/serialbyid/bla")
 
     async def async_step_user(self, user_input=None):
+        """Handle the initial step."""
         # Specify items in the order they are to be displayed in the UI
         errors = {}
         print(user_input)

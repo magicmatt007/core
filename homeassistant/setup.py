@@ -197,6 +197,14 @@ async def _async_setup_component(
 
     try:
         if hasattr(component, "async_setup"):
+            if (
+                component.__dict__["__name__"]
+                == "custom_components.detailed_hello_world_push"
+            ):
+                print("async_setup:")
+                # print(f"aync_setup: {component.__dict__}")  # MS DEBUGGING
+                print(dir(component))
+                # print(hass)
             task = component.async_setup(hass, processed_config)  # type: ignore
         elif hasattr(component, "setup"):
             # This should not be replaced with hass.async_add_executor_job because
@@ -205,6 +213,9 @@ async def _async_setup_component(
                 None, component.setup, hass, processed_config  # type: ignore
             )
         else:
+            print("else:")
+            # print(f"{component.__dict__}")  # MS DEBUGGING
+            print(dir(component))
             log_error("No setup function defined.")
             hass.data[DATA_SETUP_STARTED].pop(domain)
             return False

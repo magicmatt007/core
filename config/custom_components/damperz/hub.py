@@ -1,3 +1,4 @@
+import asyncio
 import time
 import pickle
 from logging import getLogger
@@ -27,14 +28,24 @@ print(FILE)
 
 
 class Hub:
-    # def __init__(self,damper):
-    def __init__(self, name, com):
-        # self.Main = None
+    """Dummy hub for Damper"""
+
+    manufacturer = "Demo MS"
+
+    def __init__(self, hass, name, com):
+        """Init hub"""
+        self._hass = hass
         self._name = name
+        self._id = name.lower()
         self._com = com
         self._dampers = []
 
-    def addNewDamperToDb(
+    @property
+    def hub_id(self):
+        """ID for dummy hub."""
+        return self._id
+
+    async def addNewDamperToDb(
         self,
         newSlaveAddress,
         name,
@@ -54,7 +65,7 @@ class Hub:
         )
         self._dampers.append(damper)
 
-    def modbusAssignAddress(self, nextAddress, name=None):
+    async def modbusAssignAddress(self, nextAddress, name=None):
 
         VIRTUAL_MODBUS_DEBUG = True  ## used to test without a Modbus USB stick
 
@@ -110,14 +121,14 @@ class Hub:
 
             return False
 
-    def print_hub(self):
+    async def print_hub(self):
         # print(hub.Main.__dict__)
         print(f"Name: {self._name}")
         print(f"COM: {self._com}")
         for damper in self._dampers:
             print(damper.__dict__)
 
-    def store(self):
+    async def store(self):
 
         # hubs = []
         # hubs.append(hub)
@@ -129,7 +140,7 @@ class Hub:
             pickle.dump(hub, myfile, pickle.HIGHEST_PROTOCOL)
         myfile.close()
 
-    def get_stored_data(self):
+    async def get_stored_data(self):
         """Return stored data."""
         if not exists(FILE):
             print("File doesn't exist")
@@ -141,16 +152,18 @@ class Hub:
         # self = content
         return content
 
-    def print_dampers(self):
+    async def print_dampers(self):
         for damper in self._dampers:
             print(damper.__dict__)
             # print(repr(damper))
 
-    def print_damper(self, damper):
+    async def print_damper(self, damper):
         print(damper.__dict__)
 
 
 class Damper:
+    """Damper Class"""
+
     _name: str
     _id: int
     _is_closed: bool

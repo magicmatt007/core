@@ -43,8 +43,8 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     data={"Serial Port": "COM5", "Comment": "Test integration"},
                 )
             # Otherwise, add damper:
-            self.hub.modbusAssignAddress(user_input["nextAddress"], user_input["name"])
-            self.hub.print_hub()
+            # self.hub.modbusAssignAddress(user_input["nextAddress"], user_input["name"])
+            # self.hub.print_hub()
             self._availableAddresses.remove(user_input["nextAddress"])
 
             # return await self.async_step_finish()
