@@ -22,17 +22,29 @@ from .modbusInstrument import ModbusInstrument
 # https://github.com/shaftoe/home-assistant-custom-components/blob/4fc91d69cd9a99dc2d1facbab6aefa45832d7edc/spreaker2sonos.py
 
 FILE = join(get_default_config_dir(), DOMAIN + ".pickle")
-# print(FILE)
+print(f"Pickle file locaiton: {FILE}")
 # FILE = "./storage.pickle"
 
 
 class Hub:
+    manufacturer = "Demonstration Corp"
+
     # def __init__(self,damper):
     def __init__(self, name, com):
         # self.Main = None
         self._name = name
         self._com = com
         self._dampers = []
+
+    @property
+    def name(self):
+        """Return name string."""
+        return self._name
+
+    @property
+    def com(self):
+        """Return com string."""
+        return self._com
 
     def addNewDamperToDb(
         self,
@@ -44,14 +56,15 @@ class Hub:
         factory_seq_num,
     ):
         damper = Damper(
-            newSlaveAddress,
             name,
+            newSlaveAddress,
             type_asn,
             manufacturing_date,
             factory_index,
             factory_seq_num,
         )
         self._dampers.append(damper)
+        self.store()
 
     def modbusAssignAddress(self, nextAddress, name=None):
 
@@ -75,7 +88,7 @@ class Hub:
             time.sleep(3)  # added temporarily for debugging GDB111.1E/MO
 
             if success:
-                if VIRTUAL_MODBUS_DEBUG == False:
+                if not VIRTUAL_MODBUS_DEBUG:
                     instrument = ModbusInstrument(newSlaveAddress)
                     type_asn = instrument.typeASN()
                     manufacturing_date = instrument.factoryDate()
@@ -117,6 +130,7 @@ class Hub:
             print(damper.__dict__)
 
     def store(self):
+        print("Saving data...")
 
         # hubs = []
         # hubs.append(hub)
@@ -125,7 +139,8 @@ class Hub:
         # """Store to file."""
         with open(FILE, "wb") as myfile:
             # pickle.dump({feed_url: timestamp}, myfile, pickle.HIGHEST_PROTOCOL)
-            pickle.dump(hub, myfile, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(self, myfile, pickle.HIGHEST_PROTOCOL)
+            # pickle.dump(hub, myfile, pickle.HIGHEST_PROTOCOL)
         myfile.close()
 
     def get_stored_data(self):
@@ -133,7 +148,7 @@ class Hub:
         if not exists(FILE):
             print("File doesn't exist")
             return {}
-        print("Loading data")
+        print("Loading data...")
         with open(FILE, "rb") as myfile:
             content = pickle.load(myfile)
         myfile.close()
@@ -156,17 +171,19 @@ class Damper:
     _is_open: bool
     _modbus_address: int
 
+    manufacturer = "Siemens"
+
     def __init__(
         self,
-        modbus_address,
         name,
+        modbus_address,
         type_asn,
         manufacturing_date,
         factory_index,
         factory_seq_num,
     ):
-        self._modbus_address = modbus_address
         self._name = name
+        self._modbus_address = modbus_address
         self._type_asn = type_asn
         self._manufacturing_date = manufacturing_date
         self._factory_index = factory_index

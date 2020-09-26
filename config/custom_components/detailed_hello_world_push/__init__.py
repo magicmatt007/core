@@ -17,7 +17,7 @@ async def async_setup(hass: HomeAssistant, config: dict):
     # Ensure our name space for storing objects is a known type. A dict is
     # common/preferred as it allows a separate instance of your class for each
     # instance that has been created in the UI.
-    print("HW: Hello from init, async_setup")
+    print(f"HW: Hello from init, async_setup. Domain: {DOMAIN}")
     hass.data.setdefault(DOMAIN, {})
 
     return True
@@ -27,7 +27,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Hello World from a config entry."""
     # Store an instance of the "connecting" class that does the work of speaking
     # with your actual devices.
-    print("HW: Hello from init, async_setup_entry")
+    print(f"HW: Hello from init, async_setup_entry. Domain: {DOMAIN}")
     hass.data[DOMAIN][entry.entry_id] = hub.Hub(hass, entry.data["host"])
 
     # This creates each HA object for each platform your device requires.
