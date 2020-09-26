@@ -2,6 +2,9 @@ import time
 import pickle
 from logging import getLogger
 from os.path import exists, join
+import os
+from homeassistant.core import HomeAssistant
+
 from homeassistant.config import get_default_config_dir
 from .const import (
     DOMAIN,
@@ -21,20 +24,32 @@ from .modbusInstrument import ModbusInstrument
 # https://stackoverflow.com/questions/44166092/why-is-pickle-not-serializing-my-array-of-classes
 # https://github.com/shaftoe/home-assistant-custom-components/blob/4fc91d69cd9a99dc2d1facbab6aefa45832d7edc/spreaker2sonos.py
 
-FILE = join(get_default_config_dir(), DOMAIN + ".pickle")
-print(f"Pickle file locaiton: {FILE}")
+# FILE = None
+
+# FILE = join(get_default_config_dir(), DOMAIN + ".pickle")
+# print(f"Pickle file locaiton: {FILE}")
 # FILE = "./storage.pickle"
+
+config_dir = os.path.join(os.getcwd())
+print(f"OS based dir: {config_dir}")
 
 
 class Hub:
     manufacturer = "Demonstration Corp"
 
     # def __init__(self,damper):
-    def __init__(self, name, com):
+    def __init__(self, FILE, name, com):
         # self.Main = None
+        # self._hass = hass
+        print(f"FILE in hub init: {FILE}")
+        self.FILE = FILE
         self._name = name
         self._com = com
         self._dampers = []
+
+        # self.FILE = self._hass.config.path("{}.pickle".format(DOMAIN))
+        # baloop = self._hass.config.path("{}.pickle".format(DOMAIN))
+        # print(f"Baloop: {baloop}")
 
     @property
     def name(self):
@@ -131,13 +146,14 @@ class Hub:
 
     def store(self):
         print("Saving data...")
+        print(f"FILE = {self.FILE}")
 
         # hubs = []
         # hubs.append(hub)
         # hubs = hub
 
         # """Store to file."""
-        with open(FILE, "wb") as myfile:
+        with open(self.FILE, "wb") as myfile:
             # pickle.dump({feed_url: timestamp}, myfile, pickle.HIGHEST_PROTOCOL)
             pickle.dump(self, myfile, pickle.HIGHEST_PROTOCOL)
             # pickle.dump(hub, myfile, pickle.HIGHEST_PROTOCOL)
@@ -145,11 +161,12 @@ class Hub:
 
     def get_stored_data(self):
         """Return stored data."""
-        if not exists(FILE):
+        if not exists(self.FILE):
             print("File doesn't exist")
             return {}
         print("Loading data...")
-        with open(FILE, "rb") as myfile:
+        print(f"self.FILE = {self.FILE}")
+        with open(self.FILE, "rb") as myfile:
             content = pickle.load(myfile)
         myfile.close()
         # self = content

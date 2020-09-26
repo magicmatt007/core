@@ -21,6 +21,10 @@ async def async_setup(hass: HomeAssistant, config: dict):
     print(f"Config: {config}")
     hass.data.setdefault(DOMAIN, {})
 
+    # TEMP testing:
+    baloop = hass.config.path("{}.pickle".format(DOMAIN))
+    print(f"Baloop: {baloop}")
+
     return True
 
 
@@ -33,8 +37,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # print(f"Config dict: {entry.__dict__}")
 
     # ## Load stored data:
+
+    FILE = hass.config.path("{}.pickle".format(DOMAIN))
+    print(f"File in __init__.py: {FILE}")
     hub1 = hub.Hub(
-        "My Hub", "/serialbyid/bla"
+        FILE, "My Hub", "/serialbyid/bla"
     )  # TO DO: get NAME and COM from config entry
     hub1 = hub1.get_stored_data()
     hub1.print_dampers()
