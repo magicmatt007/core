@@ -22,7 +22,7 @@ from .modbusInstrument import ModbusInstrument
 # https://github.com/shaftoe/home-assistant-custom-components/blob/4fc91d69cd9a99dc2d1facbab6aefa45832d7edc/spreaker2sonos.py
 
 FILE = join(get_default_config_dir(), DOMAIN + ".pickle")
-print(FILE)
+# print(FILE)
 # FILE = "./storage.pickle"
 
 
