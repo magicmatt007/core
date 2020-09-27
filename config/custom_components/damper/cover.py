@@ -22,10 +22,9 @@ from homeassistant.const import (
 )
 from homeassistant.helpers.entity import Entity
 
-from datetime import timedelta
-
 from .const import DOMAIN
 
+from datetime import timedelta
 SCAN_INTERVAL = timedelta(seconds=1)
 
 
