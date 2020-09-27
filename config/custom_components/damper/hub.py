@@ -40,7 +40,7 @@ class Hub:
         self.FILE = FILE
         self._name = name
         self._com = com
-        self._dampers = []
+        self.dampers = []
 
     @property
     def name(self):
@@ -69,7 +69,7 @@ class Hub:
             factory_index,
             factory_seq_num,
         )
-        self._dampers.append(damper)
+        self.dampers.append(damper)
         self.store()
 
     def modbusAssignAddress(self, nextAddress, name=None):
@@ -134,7 +134,7 @@ class Hub:
         # print(hub.Main.__dict__)
         print(f"Name: {self._name}")
         print(f"COM: {self._com}")
-        for damper in self._dampers:
+        for damper in self.dampers:
             print(damper.__dict__)
 
     def store(self):
@@ -159,7 +159,7 @@ class Hub:
         return content
 
     def print_dampers(self):
-        for damper in self._dampers:
+        for damper in self.dampers:
             print(damper.__dict__)
 
     def print_damper(self, damper):
@@ -184,7 +184,7 @@ class Damper:
         factory_index,
         factory_seq_num,
     ):
-        self._name = name
+        self.name = name
         self._modbus_address = modbus_address
         self._type_asn = type_asn
         self._manufacturing_date = manufacturing_date
