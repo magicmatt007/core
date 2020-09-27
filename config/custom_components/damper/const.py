@@ -5,3 +5,5 @@ DOMAIN = "damper"
 # OPTION_WORLDWIDE = "__worldwide"
 ATTRIBUTION = f"Data provided by Matthias"
 # ATTRIBUTION = f"Data provided by {DEFAULT_SOURCE.NAME}"
+
+VIRTUAL_MODBUS_DEBUG = True

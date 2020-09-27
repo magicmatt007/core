@@ -6,10 +6,13 @@ from homeassistant.core import HomeAssistant
 
 from . import hub
 from .const import DOMAIN
+from datetime import timedelta
 
 # List of platforms to support. There should be a matching .py file for each,
 # eg <cover.py> and <sensor.py>
 PLATFORMS = ["cover"]
+
+# SCAN_INTERVAL = timedelta(seconds=1)
 
 
 async def async_setup(hass: HomeAssistant, config: dict):
