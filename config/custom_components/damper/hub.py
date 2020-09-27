@@ -1,3 +1,4 @@
+import asyncio
 import time
 import pickle
 from logging import getLogger
@@ -8,6 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.config import get_default_config_dir
 from .const import (
     DOMAIN,
+    VIRTUAL_MODBUS_DEBUG,
 )  # might need to remove the . from .const, when running in homeassistant instead of command line
 
 import json
@@ -15,7 +17,6 @@ import json
 ### Imports from within this project:
 from .modbusAutoAddress import *
 
-# import modbusAutoAddress
 from .modbusInstrument import ModbusInstrument
 
 # DEBUGGING: python -m config.custom_components.damper.hub
@@ -23,12 +24,6 @@ from .modbusInstrument import ModbusInstrument
 # https://pythonexamples.org/python-pickle-class-object/
 # https://stackoverflow.com/questions/44166092/why-is-pickle-not-serializing-my-array-of-classes
 # https://github.com/shaftoe/home-assistant-custom-components/blob/4fc91d69cd9a99dc2d1facbab6aefa45832d7edc/spreaker2sonos.py
-
-# FILE = None
-
-# FILE = join(get_default_config_dir(), DOMAIN + ".pickle")
-# print(f"Pickle file locaiton: {FILE}")
-# FILE = "./storage.pickle"
 
 config_dir = os.path.join(os.getcwd())
 print(f"OS based dir: {config_dir}")
@@ -46,10 +41,6 @@ class Hub:
         self._name = name
         self._com = com
         self._dampers = []
-
-        # self.FILE = self._hass.config.path("{}.pickle".format(DOMAIN))
-        # baloop = self._hass.config.path("{}.pickle".format(DOMAIN))
-        # print(f"Baloop: {baloop}")
 
     @property
     def name(self):
@@ -83,7 +74,7 @@ class Hub:
 
     def modbusAssignAddress(self, nextAddress, name=None):
 
-        VIRTUAL_MODBUS_DEBUG = True  ## used to test without a Modbus USB stick
+        # VIRTUAL_MODBUS_DEBUG = True  ## used to test without a Modbus USB stick
 
         #### Values for push button config:  ####
         newSlaveAddress = nextAddress
@@ -106,7 +97,9 @@ class Hub:
                 if not VIRTUAL_MODBUS_DEBUG:
                     instrument = ModbusInstrument(newSlaveAddress)
                     type_asn = instrument.typeASN()
-                    manufacturing_date = instrument.factoryDate()
+                    manufacturing_date = str(
+                        instrument.factoryDate()
+                    )  # Convert to str. Date object not serializable to JSON in HASSIO
                     factory_index = instrument.factoryIndex()
                     factory_seq_num = instrument.factorySeqNum()
                 else:
@@ -148,15 +141,9 @@ class Hub:
         print("Saving data...")
         print(f"FILE = {self.FILE}")
 
-        # hubs = []
-        # hubs.append(hub)
-        # hubs = hub
-
         # """Store to file."""
         with open(self.FILE, "wb") as myfile:
-            # pickle.dump({feed_url: timestamp}, myfile, pickle.HIGHEST_PROTOCOL)
             pickle.dump(self, myfile, pickle.HIGHEST_PROTOCOL)
-            # pickle.dump(hub, myfile, pickle.HIGHEST_PROTOCOL)
         myfile.close()
 
     def get_stored_data(self):
@@ -169,13 +156,11 @@ class Hub:
         with open(self.FILE, "rb") as myfile:
             content = pickle.load(myfile)
         myfile.close()
-        # self = content
         return content
 
     def print_dampers(self):
         for damper in self._dampers:
             print(damper.__dict__)
-            # print(repr(damper))
 
     def print_damper(self, damper):
         print(damper.__dict__)
@@ -210,100 +195,60 @@ class Damper:
         self._is_closed = True
         self._is_open = False
 
+        self._target_position = 0
+        self._current_position = 0
+
+    @property
+    def position(self):
+        """Return position for roller."""
+        return self._current_position
+
+    async def set_position(self, position):
+        """
+        Set dummy cover to the given position.
+
+        State is announced a random number of seconds later.
+        """
+        print("Hello from hub.damper.set_position(...)")
+
+        self._target_position = position
+        if self._target_position > self._current_position:
+            print("Opening")
+            virtual_direction = 1
+        elif self._target_position < self._current_position:
+            print("Closing")
+            virtual_direction = -1
+
+        if not VIRTUAL_MODBUS_DEBUG:
+            i = ModbusInstrument(self._modbus_address)
+            i.setpoint(position * 100)
+        else:
+            while (self._current_position - self._target_position) != 0:
+                self._current_position += 1 * virtual_direction
+                print(f"Current Position: {self._current_position}")
+                await asyncio.sleep(0.1)
+
+        # self._target_position = position
+
+
+    async def update(self):
+        """
+        Set dummy cover to the given position.
+
+        State is announced a random number of seconds later.
+        """
+        print("Hello from hub.damper.update(...)")
+
+        if not VIRTUAL_MODBUS_DEBUG:
+            i = ModbusInstrument(self._modbus_address)
+            self._current_position = i.actualPosition() / 100
+        else:
+            await asyncio.sleep(0.1)
+            self._current_position = self._current_position
 
 if __name__ == "__main__":
-    print("hello")
+    print("hello from __main__")
 
-    hub = Hub("My Hub", "/serialbyid/bla")
-    hub.modbusAssignAddress(1)
-    hub.print_hub()
-
-    # ## Generate & store data:
     # hub = Hub("My Hub", "/serialbyid/bla")
+    # hub.modbusAssignAddress(1)
     # hub.print_hub()
-    # hub.addNewDamperToDb(101, "Modbus 101", "GRA126", "31.12.2019", "A", "1234567890")
-    # hub.addNewDamperToDb(102, "Modbus 102", "GRA126", "31.11.2019", "A", "1234567891")
-    # hub.print_hub()
-    # hub.store()
-
-    # ## Load stored data:
-    # hub = Hub("My Hub", "/serialbyid/bla")
-    # hub = hub.get_stored_data()
-    # hub.print_damper(hub._dampers[1])
-
-
-# """
-# Subscribe to feedreader events. If event is from Spreaker url.
-# Parse the content and add the MP3 link to Sonos queue.
-# """
-# import pickle
-# from logging import getLogger
-# from os.path import exists, join
-
-# from homeassistant.config import get_default_config_dir
-# from homeassistant.components.feedreader import EVENT_FEEDREADER
-# from homeassistant.components.media_player import DOMAIN as MEDIA_PLAYER_DOMAIN
-# from homeassistant.components.media_player import (
-#     SERVICE_PLAY_MEDIA, ATTR_MEDIA_ENQUEUE, ATTR_MEDIA_CONTENT_ID,
-#     ATTR_MEDIA_CONTENT_TYPE)
-
-
-# DOMAIN = 'spreaker2sonos'
-# DEPENDENCIES = [MEDIA_PLAYER_DOMAIN]
-# _LOGGER = getLogger(__name__)
-# FILE = join(get_default_config_dir(), DOMAIN + '.pickle')
-# DATE_FORMAT = '%a, %d %b %Y %H:%M:%S +0000'
-# TIMESTAMP_ENTITY_KEY = 'published_parsed'
-
-
-# def setup(hass, config):
-#     """Setup the spreaker2sonos component."""
-#     def get_stored_data():
-#         """Return stored data."""
-#         if not exists(FILE):
-#             return {}
-#         with open(FILE, 'rb') as myfile:
-#             content = pickle.load(myfile)
-#         myfile.close()
-#         return content
-
-#     def store_uri_timestamp(timestamp, feed_url):
-#         """Store uri timestamp to file."""
-#         with open(FILE, 'wb') as myfile:
-#             pickle.dump({feed_url: timestamp}, myfile, pickle.HIGHEST_PROTOCOL)
-#         myfile.close()
-
-#     def get_uri_from_data(entry):
-#         """Get mp3 link from feed entry data."""
-#         for link in entry.links:
-#             if link.get('type') == 'audio/mpeg':
-#                 return link.get('href')
-
-#     def get_new_uri_from_data(entry, feed_url):
-#         """Return uri if does not match stored one."""
-#         uri = get_uri_from_data(entry)
-#         stored_entry_timestamp = get_stored_data().get(feed_url)
-#         if (stored_entry_timestamp and
-#                 entry.get(TIMESTAMP_ENTITY_KEY) <= stored_entry_timestamp):
-#             _LOGGER.debug('URI %s already processed', uri)
-#             return None
-#         return uri
-
-#     def parse_event(event):
-#         """If event is a Spreaker feed url, parse and add it to queue."""
-#         feed_url = event.data.get('feed_url', '')
-#         if 'spreaker' in feed_url:
-#             uri = get_new_uri_from_data(event.data, feed_url)
-
-#             if uri:
-#                 hass.services.call(MEDIA_PLAYER_DOMAIN,
-#                                    SERVICE_PLAY_MEDIA,
-#                                    {ATTR_MEDIA_CONTENT_ID: uri,
-#                                     ATTR_MEDIA_CONTENT_TYPE: 'audio/mpeg',
-#                                     ATTR_MEDIA_ENQUEUE: True})
-#                 _LOGGER.info('Added URI "%s" to queue', uri)
-#                 store_uri_timestamp(event.data.get(TIMESTAMP_ENTITY_KEY),
-#                                     feed_url)
-
-#     hass.bus.listen(EVENT_FEEDREADER, parse_event)
-#     return True

@@ -1,5 +1,6 @@
 """Platform for sensor integration."""
 import asyncio
+import time
 
 from homeassistant.components.cover import (
     ATTR_POSITION,
@@ -21,46 +22,16 @@ from homeassistant.const import (
 )
 from homeassistant.helpers.entity import Entity
 
+from datetime import timedelta
+
 from .const import DOMAIN
 
-from . import modbusAutoAddress
-from .modbusInstrument import ModbusInstrument
-
-# # Imports for Modbus:
-# import minimalmodbus # as mmRtu
-# import serial
-# import time
-# from datetime import date
-
-############################################
-
-
-override_off = 0
-override_open = 1
-override_close = 2
-override_stop = 3
-override_GoToMin = 4
-override_GoToMax = 5
-
-
-####################################
-
-
-# async def async_setup(hass: HomeAssistant, config: dict):
-#     """Set up the Hello World component."""
-#     # Ensure our name space for storing objects is a known type. A dict is
-#     # common/preferred as it allows a separate instance of your class for each
-#     # instance that has been created in the UI.
-#     hass.data.setdefault(DOMAIN, {})
-
-#     return True
+SCAN_INTERVAL = timedelta(seconds=1)
 
 
 async def async_setup_entry(hass, config_entry, async_add_devices):
     """Add cover for passed config_entry in HA."""
     print("hello from cover, async_setup_entry")
-    # async_add_devices([DamperCover("Damper 1", 1)])
-    # async_add_devices([DamperCover("Damper 10", 10)])
 
     # The hub is loaded from the associated hass.data entry that was created in the
     # __init__.async_setup_entry function
@@ -79,37 +50,22 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
         async_add_devices(new_devices)
 
 
-# async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
-#     """Set up the sensor platform."""
-#     async_add_entities([ExampleDamper("Damper 1", 1)])
-#     # add_entities([ExampleDamper("Damper 2",2)])
-#     async_add_entities([ExampleDamper("Damper 3", 103)])
-
-
-## TO DO: Implement routine to add dampers, which were added via config_flow and are persistantly stored in a pickle file:
-# import hub
-# for damper in DAMPERS:
-#    add_entities(FireDamper(damper.name, damper.modbus_address))
-
-
-# class ExampleDamper(Entity):
 class DamperCover(CoverEntity):
     """Representation of a Cover."""
 
-    should_poll = False
+    should_poll = True
 
-    # def __init__(self, name, modbus_address):
     def __init__(self, damper):
-        """Initialize the sensor."""
-        self._damper = damper
-        # self._name = name
-        # self._modbus_address = modbus_address
+        """Initialize the damper."""
+        self._damper = damper  # instance of class damper, stored in hub.py
 
-        self._damper._state = STATE_CLOSED
-        self._damper._current_cover_position = 0
-        self._damper._is_closed = True
-        self._damper._is_opening = False
-        self._damper._is_closing = True
+        # These attributes are currently not in the damper class. Should these be added??????
+        self._state = STATE_CLOSED
+        self._is_closed = True
+        self._is_opening = False
+        self._is_closing = False
+        self._is_open = False
+        self._is_closed = False
 
         # Additional custom attributes for the Damper implementation of Cover:
         self._damper._attributes = {
@@ -123,7 +79,7 @@ class DamperCover(CoverEntity):
     @property
     def unique_id(self):
         """Return Unique ID string."""
-        return f"{self._damper._modbus_address}_cover"
+        return f"{self._damper._modbus_address}_cover"  # TO DO: Make it a real UID. Current implementation could lead to duplicates, if config flow doesn't ensure uniqure modbus addresses (which is currently does)
 
     @property
     def device_info(self):
@@ -139,34 +95,40 @@ class DamperCover(CoverEntity):
 
     @property
     def name(self):
-        """Return the name of the sensor."""
+        """Return the name of the damper."""
         # return 'Example Damper'
         return self._damper._name
 
     @property
     def state(self):
-        """Return the state of the sensor."""
-        return self._damper._state
+        """Return the state of the damper."""
+        return self._state
+
+    @property
+    def is_open(self):
+        """Return the open state of the damper."""
+        return self._is_open
 
     @property
     def is_closed(self):
         """Return the closed state of the damper."""
-        return self._damper._is_closed
+        return self._is_closed
 
     @property
     def is_opening(self):
         """Return if the cover is opening or not."""
-        return self._damper._is_opening
+        return self._is_opening
 
     @property
     def is_closing(self):
         """Return if the cover is closing or not."""
-        return self._damper._is_closing
+        return self._is_closing
 
     @property
     def current_cover_position(self):
         """Return the closed state of the damper."""
-        return self._damper._current_cover_position
+        # print(f"Hello from damper.current_cover_position {time.time()}")
+        return self._damper.position
 
     # @property
     # def unit_of_measurement(self):
@@ -196,87 +158,51 @@ class DamperCover(CoverEntity):
 
     async def async_open_cover(self, **kwargs):
         """Open the cover."""
-        self._damper._state = STATE_OPENING
-        self._damper._is_opening = True
-
-        # while(self._current_cover_position < 100):
-        #     self._current_cover_position += 1
-        #     await asyncio.sleep(0.1)
-        # self._state = STATE_OPEN
-
-        # self._current_cover_position = 100
-
-        instruments = []
-        instruments.append(
-            ModbusInstrument(self._damper._modbus_address)
-        )  # Create new instrument with address 5 and append it to the instruments array, that keeps all connected devices
-        i = instruments[0]
-        i.setpoint(10000)
-
-    async def async_close_cover(self, **kwargs):
-        """Open the cover."""
-        self._damper._state = STATE_CLOSING
-        self._damper._is_closing = True
-
-        # while(self._current_cover_position > 0):
-        #     self._current_cover_position += -1
-        #     await asyncio.sleep(0.1)
-
-        # self._state = STATE_CLOSED
-        # self._current_cover_position = 0
-
-        instruments = []
-        instruments.append(
-            ModbusInstrument(self._damper._modbus_address)
-        )  # Create new instrument with address 5 and append it to the instruments array, that keeps all connected devices
-        i = instruments[0]
-        i.setpoint(0)
+        self._state = STATE_OPENING
+        self._is_opening = True
+        self._is_closing = False
+        await self._damper.set_position(100)
 
     async def async_set_cover_position(self, **kwargs):
         """Move the cover to a specific position."""
+        target_position = kwargs[ATTR_POSITION]
+        if target_position > self._current_position:
+            self._state = STATE_OPENING
+            self._is_opening = True
+            self._is_closing = False
+        elif target_position < self._current_position:
+            self._state = STATE_CLOSING
+            self._is_closing = True
+            self._is_opening = False
 
-        self._damper._current_cover_position = kwargs[ATTR_POSITION]
-        if self._damper._current_cover_position == 0:
-            self._damper._state = STATE_CLOSED
-        else:
-            self._damper._state = STATE_OPEN
+        await self._damper.set_position(kwargs[ATTR_POSITION])
 
-        # # Modbus RTU tests: ###########################################
-
-        instruments = []
-        instruments.append(
-            ModbusInstrument(self._damper._modbus_address)
-        )  # Create new instrument with address 5 and append it to the instruments array, that keeps all connected devices
-        # print(f"Total instruments: {instruments[0].instrumentCount}")
-
-        i = instruments[0]
-        # print(f"Instrument Model: {i.typeASN()}")
-        # print(f"Manufacturing date: {i.factoryDate()}")
-        # print(f"Factory Index: {i.factoryIndex()}")
-        # print(f"Factory Sequence Number: {i.factorySeqNum()}")
-        # # print(f"Factory Index: {i.factoryIndex():X}")
-
-        # i.overrideControl(override_off)
-        # i.setpoint(6000)
-        i.setpoint(self._damper._current_cover_position * 100)
-
-        # # i.monitorPositionChange()
-        # print(f"Current Position: {(i.actualPosition()/10000*90):1f}°")
-
-        # # Modbus RTU tests: ###########################################
+    async def async_close_cover(self, **kwargs):
+        """Close the cover."""
+        self._state = STATE_CLOSING
+        self._is_closing = True
+        self._is_opening = False
+        await self._damper.set_position(0)
 
     async def async_update(self):
         """Fetch new state data for the sensor.
 
         This is the only method that should fetch new data for Home Assistant.
         """
+        # print("Hello from async_update")
 
-        instruments = []
-        instruments.append(
-            ModbusInstrument(self._damper._modbus_address)
-        )  # Create new instrument with address 5 and append it to the instruments array, that keeps all connected devices
-        i = instruments[0]
-        self._damper._current_cover_position = i.actualPosition() / 100
+        self._damper.update()
 
-        # self._state = 23
-        await asyncio.sleep(0.1)
+        self._current_position = self._damper.position
+
+        if self._current_position > 95:
+            self._state = STATE_OPEN
+            self._is_open = True
+            self._is_closed = False
+        elif self._current_position < 5:
+            self._state = STATE_CLOSED
+            self._is_closed = True
+            self._is_open = False
+        else:
+            self._is_closed = False
+            self._is_open = False

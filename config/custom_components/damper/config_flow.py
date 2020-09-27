@@ -15,8 +15,8 @@ _LOGGER = logging.getLogger(__name__)
 class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
-    CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_PUSH
-    # CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
+    # CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_PUSH
+    CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     _availableAddresses = None
     _availableAddresses = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
