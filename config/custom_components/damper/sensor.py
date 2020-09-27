@@ -17,6 +17,10 @@ from .const import DOMAIN
 
 from homeassistant.const import ATTR_VOLTAGE
 
+from datetime import timedelta
+
+SCAN_INTERVAL = timedelta(seconds=1)
+
 UNIT_PERCENTAGE = "%"
 
 # See cover.py for more details.
@@ -55,7 +59,7 @@ class SensorBase(Entity):
     @property
     def device_info(self):
         """Return information to link this entity with the correct device."""
-        return {"identifiers": {(DOMAIN, self._damper._modbus_address)}
+        return {"identifiers": {(DOMAIN, self._damper._modbus_address)}}
         # return {"identifiers": {(DOMAIN, self._damper.damper_id)}}
 
     # # This property is important to let HA know if this entity is online or not.
@@ -145,15 +149,15 @@ class PositionSensor(SensorBase):
         return f"{self._damper.name} Position"
         # return f"{self._damper.name} Battery"
 
-    # Might not need this, as the cover.py already calls the update method of damper....
-    async def async_update(self):
-        """Fetch new state data for the sensor.
+    # # Might not need this, as the cover.py already calls the update method of damper....
+    # async def async_update(self):
+    #     """Fetch new state data for the sensor.
 
-        This is the only method that should fetch new data for Home Assistant.
-        """
-        # print("Hello from async_update")
+    #     This is the only method that should fetch new data for Home Assistant.
+    #     """
+    #     print("Hello from async_update sensor")
 
-        await self._damper.update()
+    #     await self._damper.update()
 
 
 # class BatterySensor(SensorBase):
