@@ -10,7 +10,7 @@ from datetime import timedelta
 
 # List of platforms to support. There should be a matching .py file for each,
 # eg <cover.py> and <sensor.py>
-PLATFORMS = ["cover"]
+PLATFORMS = ["cover", "sensor"]
 
 # SCAN_INTERVAL = timedelta(seconds=1)
 

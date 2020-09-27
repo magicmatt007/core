@@ -41,7 +41,7 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
     # to HA. Note these are all added to a list, so async_add_devices can be
     # called just once.
     new_devices = []
-    for damper in hub._dampers:
+    for damper in hub.dampers:
         print(f"Damper DICT: {damper.__dict__}")
         damper_entity = DamperCover(damper)
         new_devices.append(damper_entity)
@@ -87,7 +87,7 @@ class DamperCover(CoverEntity):
         return {
             "identifiers": {(DOMAIN, self._damper._modbus_address)},
             # If desired, the name for the device could be different to the entity
-            "name": self._damper._name,
+            "name": self._damper.name,
             "sw_version": self._damper._factory_index,
             "model": self._damper._type_asn,
             "manufacturer": self._damper.manufacturer,
@@ -97,7 +97,7 @@ class DamperCover(CoverEntity):
     def name(self):
         """Return the name of the damper."""
         # return 'Example Damper'
-        return self._damper._name
+        return self._damper.name
 
     @property
     def state(self):
@@ -166,11 +166,11 @@ class DamperCover(CoverEntity):
     async def async_set_cover_position(self, **kwargs):
         """Move the cover to a specific position."""
         target_position = kwargs[ATTR_POSITION]
-        if target_position > self._current_position:
+        if target_position > self._damper.position:
             self._state = STATE_OPENING
             self._is_opening = True
             self._is_closing = False
-        elif target_position < self._current_position:
+        elif target_position < self._damper.position:
             self._state = STATE_CLOSING
             self._is_closing = True
             self._is_opening = False
@@ -193,13 +193,13 @@ class DamperCover(CoverEntity):
 
         await self._damper.update()
 
-        self._current_position = self._damper.position
+        _current_position = self._damper.position
 
-        if self._current_position > 95:
+        if _current_position > 95:
             self._state = STATE_OPEN
             self._is_open = True
             self._is_closed = False
-        elif self._current_position < 5:
+        elif _current_position < 5:
             self._state = STATE_CLOSED
             self._is_closed = True
             self._is_open = False
