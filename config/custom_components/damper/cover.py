@@ -191,7 +191,7 @@ class DamperCover(CoverEntity):
         """
         # print("Hello from async_update")
 
-        self._damper.update()
+        await self._damper.update()
 
         self._current_position = self._damper.position
 

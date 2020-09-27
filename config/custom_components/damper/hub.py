@@ -167,11 +167,11 @@ class Hub:
 
 
 class Damper:
-    _name: str
-    _id: int
-    _is_closed: bool
-    _is_open: bool
-    _modbus_address: int
+    # _name: str
+    # _id: int
+    # _is_closed: bool
+    # _is_open: bool
+    # _modbus_address: int
 
     manufacturer = "Siemens"
 
@@ -230,7 +230,6 @@ class Damper:
 
         # self._target_position = position
 
-
     async def update(self):
         """
         Set dummy cover to the given position.
@@ -245,6 +244,7 @@ class Damper:
         else:
             await asyncio.sleep(0.1)
             self._current_position = self._current_position
+
 
 if __name__ == "__main__":
     print("hello from __main__")
