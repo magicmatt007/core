@@ -103,6 +103,15 @@ class ModbusInstrument:
         # day = int(str(value2)[2:5]) #right(value2,2)
         print(year, month, day)
 
+        #################### Tempoarily added code, to handle manufacutring date of GNA prototype, that returns 0.0.2000:
+        if month == 0:
+            print("DEBUG, adjusting month to 1")
+            month = 1
+        if day == 0:
+            print("DEBUG, adjusting day to 1")
+            day = 1
+        ####################
+
         return date(year, month, day)
         # return [value1,value2, year, month, day, date(year,month,day)]
 
