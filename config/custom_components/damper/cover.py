@@ -25,6 +25,7 @@ from homeassistant.helpers.entity import Entity
 from .const import DOMAIN
 
 from datetime import timedelta
+
 SCAN_INTERVAL = timedelta(seconds=1)
 
 
@@ -181,7 +182,17 @@ class DamperCover(CoverEntity):
         self._state = STATE_CLOSING
         self._is_closing = True
         self._is_opening = False
-        await self._damper.set_position(0)
+
+        ########################
+        # Accomdate for the dodgy spring return set-point implementation in Sep 2020.
+        # Setpoint:
+        # 0 - 1000 = Spring return close
+        # 2000 - 10000 = 0 - 100%
+        # NOTE: target_positon is in [0,100]. The conversion to [0, 10000] happens in the hub.py
+        if self._damper._type_asn[0:6] == "GMA151" or "":
+            await self._damper.spring_close()
+        else:
+            await self._damper.set_position(0)
 
     async def async_update(self):
         """Fetch new state data for the sensor.
