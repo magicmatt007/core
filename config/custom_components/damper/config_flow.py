@@ -19,7 +19,28 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     _availableAddresses = None
-    _availableAddresses = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    _availableAddresses = [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+    ]
 
     _availableGroups = None
     _availableGroups = ["Create a new group", "Group 1", "Group 2"]
@@ -108,9 +129,16 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 )
 
             # Otherwise, add damper:
-            self.hub.modbusAssignAddress(user_input["nextAddress"], user_input["name"])
-            self.hub.print_hub()
-            self._availableAddresses.remove(user_input["nextAddress"])
+            success = self.hub.modbusAssignAddress(
+                user_input["nextAddress"], user_input["name"]
+            )
+            print(success)
+            if success:
+                self.hub.print_hub()
+                self._availableAddresses.remove(user_input["nextAddress"])
+            else:
+                print("Try again")
+                # TODO thow exception to display error on the UI
 
         data_schema = {
             vol.Required(
