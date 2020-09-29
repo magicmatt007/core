@@ -218,7 +218,7 @@ class Damper:
         # 2000 - 10000 = 0 - 100%
         # NOTE: target_positon is in [0,100]. The conversion to [0, 10000] happens in the hub.py
         # TO DO: Understand, why the logic seem to be required here in hub.py/Damper and not in cover.py
-        if self._type_asn[0:6] == "GMA151" or "":
+        if (self._type_asn[0:6] == "GMA151") or (self._type_asn[0:6] == ""):
             print(f"Adjusting setpoint {self._type_asn[0:6]}, {position}")
             position = int(position * 0.8 + 20)
             print(f"New setpoint {position}")
@@ -251,7 +251,7 @@ class Damper:
 
         State is announced a random number of seconds later.
         """
-        print("Hello from hub.damper.update(...)")
+        # print("Hello from hub.damper.update(...)")
 
         if not VIRTUAL_MODBUS_DEBUG:
             i = ModbusInstrument(self._modbus_address)
