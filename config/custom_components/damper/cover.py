@@ -142,9 +142,11 @@ class DamperCover(CoverEntity):
 
     @property
     def supported_features(self):
-        """Return the device class."""
+        """Return the supported features."""
 
-        return SUPPORT_CLOSE | SUPPORT_OPEN | SUPPORT_SET_POSITION
+        return (
+            SUPPORT_CLOSE | SUPPORT_OPEN | SUPPORT_SET_POSITION | SUPPORT_STOP
+        )  # TO DO: SUPPORT_STOP is misused to start testing...
 
     @property
     def device_state_attributes(self):
@@ -195,6 +197,16 @@ class DamperCover(CoverEntity):
             await self._damper.spring_close()
         else:
             await self._damper.set_position(0)
+
+    async def async_stop_cover(self, **kwargs):
+        """Stop the cover."""
+        ### TO DO: Missused for triggering testing.....
+
+        self._state = STATE_CLOSING
+        self._is_closing = True
+        self._is_opening = False
+
+        await self._damper.modbus_test()
 
     async def async_update(self):
         """Fetch new state data for the sensor.
