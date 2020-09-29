@@ -189,7 +189,9 @@ class DamperCover(CoverEntity):
         # 0 - 1000 = Spring return close
         # 2000 - 10000 = 0 - 100%
         # NOTE: target_positon is in [0,100]. The conversion to [0, 10000] happens in the hub.py
-        if self._damper._type_asn[0:6] == "GMA151" or "":
+        if (self._damper._type_asn[0:6] == "GMA151") or (
+            self._damper._type_asn[0:6] == ""
+        ):
             await self._damper.spring_close()
         else:
             await self._damper.set_position(0)
