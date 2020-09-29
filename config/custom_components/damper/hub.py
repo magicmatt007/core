@@ -197,6 +197,7 @@ class Damper:
 
         self._target_position = 0
         self._current_position = 0
+        self._currently_testing = False
 
     @property
     def position(self):
@@ -257,8 +258,129 @@ class Damper:
             i = ModbusInstrument(self._modbus_address)
             self._current_position = i.actualPosition() / 100
         else:
-            await asyncio.sleep(0.1)
+            # await asyncio.sleep(0.1)
             self._current_position = self._current_position
+
+    async def modbus_test(self):
+
+        print(f"Hello from hub.damper.modbus_test Modbus ({self._modbus_address})")
+
+        RUNTIME_MAX = 90
+        INTERVAL = 1
+        global error_count
+        error_count = 0
+        # global dampers_currently_testing
+        error = ""
+
+        if self._currently_testing:
+            print(
+                f"Damper is already testing. Please wait {self.name}, {self._modbus_address}"
+            )
+            return
+        else:
+            print(
+                f"Damper is not yet testing. Starting now {self.name}, {self._modbus_address}"
+            )
+
+        #### Close Damper:
+
+        ##### BRAINSTORM:
+        #    await asyncio.gather (self.virtual_position(position, runtime), self.close_damper)
+        try:
+            startTime = time.time()
+
+            if not VIRTUAL_MODBUS_DEBUG:
+                await self.set_position(0)
+
+            # instrument = ModbusInstrument(self._modbus_address)
+            # instrument.setpoint(0)
+            # data["state"] = "Closing"
+            # TO DO: How to handle update of cover attributes like state, is_closing, ...?
+            #        Should these be replicated in hub.py, and somehow be transferred via update()?
+
+            current = -10
+            counter = 0
+            # socketio.sleep(3)
+            if VIRTUAL_MODBUS_DEBUG:
+                RUNTIME_CLOSE_VIRT = 20
+                WAIT = RUNTIME_CLOSE_VIRT / RUNTIME_MAX * INTERVAL
+                count_to_1s = 0
+
+            for i in range(0, int(RUNTIME_MAX / INTERVAL)):
+                previous = current
+
+                try:
+                    if VIRTUAL_MODBUS_DEBUG and self._current_position > 0:
+                        self._current_position += -1
+                        # await asyncio.sleep(0.1)
+                        print(f"Wait {WAIT}")
+                        await asyncio.sleep(WAIT)
+                        count_to_1s += 1
+                        if count_to_1s >= INTERVAL / WAIT:
+                            count_to_1s = 0
+                            continue
+                    else:
+                        await self.update()
+                    current = self._current_position
+
+                except Exception as e:
+                    error_count += 1
+                    print(
+                        f"Error count {error_count}. Error (Damper test, close, act position). OPEN. Have you connected the Modbus interface?"
+                        + str(e)
+                    )
+                    error = "Close error, act pos" + str(e)
+                    # damper_is_testing_temp = False
+                    #   dampers_currently_testing.remove(modbus_address)
+                    #   if True: #error_count >=3:
+                    #       raise NameError('HiThere Close')
+
+                print(
+                    f"{self._modbus_address} - Current: {current}, Previous: {previous}"
+                )
+                if (
+                    current == previous
+                ):  # TO DO: Replace this clumsy end position detection with a better one
+                    counter = counter + 1
+                    print("break counter" + str(counter))
+                    if counter > 2:
+                        print("break realy")
+                        counter = 0
+                        break
+                else:
+                    print("reset counter to 0")
+                    counter = 0
+                print(
+                    f"{self._modbus_address} - Current position: {current}, ({(current/10000*90):.1f}°)"
+                )
+                position = round(current / 10000 * 90, 0)
+                # data["position"] = position
+                # emit(damper_id, dumps(data), broadcast = True)  # dumps() converts the dictionnary to JSON
+                await asyncio.sleep(INTERVAL)
+                # time.sleep(interval)
+
+                # data["state"] = "Closed"
+                runtime_close = round((time.time() - startTime), 1)
+                print(f"Runtime: {runtime_close:.1f}s")
+                # emit(damper_id, dumps(data), broadcast = True)  # dumps() converts the dictionnary to JSON
+
+        except Exception as e:
+            error_count += 1
+            print(
+                f"Error count {error_count}. Error (Damper test). Have you connected the Modbus interface?"
+                + str(e)
+            )
+            # damper_is_testing_temp = False
+            if True:  # error_count >=3:
+                self._currently_testing = False
+                error = "Close error: " + str(e)
+                print(f"Error: {error}")
+                # emit(damper_id, dumps(data), broadcast = True)  # dumps() converts the dictionnary to JSON
+                return
+        await asyncio.sleep(
+            5
+        )  # TO DO: Remove this sleep in open position after debugging
+        # socketio.sleep(5)  # TO DO: Remove this sleep in open position after debugging
 
 
 if __name__ == "__main__":
