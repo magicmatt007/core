@@ -13,6 +13,7 @@ from .const import (
 )  # might need to remove the . from .const, when running in homeassistant instead of command line
 
 import json
+import asyncio
 
 ### Imports from within this project:
 from .modbusAutoAddress import *
@@ -265,13 +266,6 @@ class Damper:
 
         print(f"Hello from hub.damper.modbus_test Modbus ({self._modbus_address})")
 
-        RUNTIME_MAX = 90
-        INTERVAL = 1
-        global error_count
-        error_count = 0
-        # global dampers_currently_testing
-        error = ""
-
         if self._currently_testing:
             print(
                 f"Damper is already testing. Please wait {self.name}, {self._modbus_address}"
@@ -282,18 +276,48 @@ class Damper:
                 f"Damper is not yet testing. Starting now {self.name}, {self._modbus_address}"
             )
 
-        #### Close Damper:
+        # Close Damper:
+        if VIRTUAL_MODBUS_DEBUG:
+            await asyncio.gather(self.virtual_position(0, 20), self.test_damper(90, 0))
+        else:
+            self.test_damper(90, 0)
 
-        ##### BRAINSTORM:
-        #    await asyncio.gather (self.virtual_position(position, runtime), self.close_damper)
+        print("Preparing for opening...")
+        await asyncio.sleep(5)
+
+        # Open Damper:
+        if VIRTUAL_MODBUS_DEBUG:
+            await asyncio.gather(
+                self.virtual_position(100, 60), self.test_damper(90, 100)
+            )
+        else:
+            self.test_damper(90, 100)
+
+    async def virtual_position(self, position, runtime):
+        if self._current_position < position:
+            while self._current_position < position:
+                self._current_position += 1
+                await asyncio.sleep(runtime / 100)
+        else:
+            while self._current_position > position:
+                self._current_position += -1
+                await asyncio.sleep(runtime / 100)
+
+    async def test_damper(self, runtime_max, target_position):
+        RUNTIME_MAX = runtime_max
+        INTERVAL = 1
+        global error_count
+        error_count = 0
+        # global dampers_currently_testing
+        error = ""
+
+        #### Close or Open Damper:
         try:
             startTime = time.time()
 
             if not VIRTUAL_MODBUS_DEBUG:
-                await self.set_position(0)
+                await self.set_position(target_position)
 
-            # instrument = ModbusInstrument(self._modbus_address)
-            # instrument.setpoint(0)
             # data["state"] = "Closing"
             # TO DO: How to handle update of cover attributes like state, is_closing, ...?
             #        Should these be replicated in hub.py, and somehow be transferred via update()?
@@ -301,25 +325,12 @@ class Damper:
             current = -10
             counter = 0
             # socketio.sleep(3)
-            if VIRTUAL_MODBUS_DEBUG:
-                RUNTIME_CLOSE_VIRT = 20
-                WAIT = RUNTIME_CLOSE_VIRT / RUNTIME_MAX * INTERVAL
-                count_to_1s = 0
 
             for i in range(0, int(RUNTIME_MAX / INTERVAL)):
                 previous = current
 
                 try:
-                    if VIRTUAL_MODBUS_DEBUG and self._current_position > 0:
-                        self._current_position += -1
-                        # await asyncio.sleep(0.1)
-                        print(f"Wait {WAIT}")
-                        await asyncio.sleep(WAIT)
-                        count_to_1s += 1
-                        if count_to_1s >= INTERVAL / WAIT:
-                            count_to_1s = 0
-                            continue
-                    else:
+                    if not VIRTUAL_MODBUS_DEBUG:
                         await self.update()
                     current = self._current_position
 
@@ -351,7 +362,7 @@ class Damper:
                     print("reset counter to 0")
                     counter = 0
                 print(
-                    f"{self._modbus_address} - Current position: {current}, ({(current/10000*90):.1f}°)"
+                    f"{self._modbus_address} - Current position: {current}, ({(current/100*90):.1f}°)"
                 )
                 position = round(current / 10000 * 90, 0)
                 # data["position"] = position
@@ -360,8 +371,8 @@ class Damper:
                 # time.sleep(interval)
 
                 # data["state"] = "Closed"
-                runtime_close = round((time.time() - startTime), 1)
-                print(f"Runtime: {runtime_close:.1f}s")
+                runtime_final = round((time.time() - startTime), 1)
+                print(f"Runtime Final: {runtime_final:.1f}s")
                 # emit(damper_id, dumps(data), broadcast = True)  # dumps() converts the dictionnary to JSON
 
         except Exception as e:
@@ -370,17 +381,19 @@ class Damper:
                 f"Error count {error_count}. Error (Damper test). Have you connected the Modbus interface?"
                 + str(e)
             )
-            # damper_is_testing_temp = False
             if True:  # error_count >=3:
                 self._currently_testing = False
                 error = "Close error: " + str(e)
                 print(f"Error: {error}")
-                # emit(damper_id, dumps(data), broadcast = True)  # dumps() converts the dictionnary to JSON
                 return
         await asyncio.sleep(
             5
         )  # TO DO: Remove this sleep in open position after debugging
         # socketio.sleep(5)  # TO DO: Remove this sleep in open position after debugging
+
+        # data["state"] = "Closed"
+        runtime_close = round((time.time() - startTime), 1)
+        print(f"Runtime Close: {runtime_close:.1f}s")
 
 
 if __name__ == "__main__":
