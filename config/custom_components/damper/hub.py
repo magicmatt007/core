@@ -392,8 +392,12 @@ class Damper:
         # socketio.sleep(5)  # TO DO: Remove this sleep in open position after debugging
 
         # data["state"] = "Closed"
-        runtime_close = round((time.time() - startTime), 1)
-        print(f"Runtime Close: {runtime_close:.1f}s")
+        runtime = round((time.time() - startTime), 1)
+        CRED = "\033[91m"
+        CEND = "\033[0m"
+        print(
+            f"{CRED}Runtime, {self.name}, Target Position {target_position}: {runtime:.1f}s{CEND}"
+        )
 
 
 if __name__ == "__main__":
