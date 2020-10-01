@@ -1,6 +1,8 @@
 import asyncio
 import time
 import pickle
+from random import randint
+
 from logging import getLogger
 from os.path import exists, join
 import os
@@ -10,6 +12,9 @@ from homeassistant.config import get_default_config_dir
 from .const import (
     DOMAIN,
     VIRTUAL_MODBUS_DEBUG,
+    VIRTUAL_RUNTIME_OPEN,
+    VIRTUAL_RUNTIME_CLOSE,
+    VIRTUAL_RUNTIME_VAR_PERCENT,
 )  # might need to remove the . from .const, when running in homeassistant instead of command line
 
 import json
@@ -187,11 +192,29 @@ class Damper:
     ):
         self.name = name
         self._modbus_address = modbus_address
+        # Attributes:
         self._type_asn = type_asn
         self._manufacturing_date = manufacturing_date
         self._factory_index = factory_index
         self._factory_seq_num = factory_seq_num
 
+        # Testing:
+        self._runtime_open = None
+        self._runtime_close = None
+        self._power = None
+        self._overall_indicator = None
+        self._runtime_close_indicator = None
+        self._runtime_open_indicator = None
+        self._power_indicator = None
+        # self._runtime_open: float
+        # self._runtime_close: float
+        # self._power: float
+        # self._overall_indicator: str
+        # self._runtime_close_indicator: str
+        # self._runtime_open_indicator: str
+        # self._power_indicator: str
+
+        # States:
         self._id = 1  # TO DO: Remove or do a proper implementation
         self._is_closed = True
         self._is_open = False
@@ -199,6 +222,8 @@ class Damper:
         self._target_position = 0
         self._current_position = 0
         self._currently_testing = False
+
+        print(f"Damper DICT in Damper.__init__: {self.__dict__}")
 
     @property
     def position(self):
@@ -278,7 +303,20 @@ class Damper:
 
         # Close Damper:
         if VIRTUAL_MODBUS_DEBUG:
-            await asyncio.gather(self.virtual_position(0, 20), self.test_damper(90, 0))
+            _runtime_close = (
+                VIRTUAL_RUNTIME_CLOSE
+                * (
+                    100
+                    + randint(-VIRTUAL_RUNTIME_VAR_PERCENT, VIRTUAL_RUNTIME_VAR_PERCENT)
+                )
+                / 100
+            )
+
+            _, self._runtime_close = await asyncio.gather(
+                self.virtual_position(0, _runtime_close), self.test_damper(90, 0)
+            )
+            # print(f"A: {a}")
+            # print(f"b: {b}")
         else:
             self.test_damper(90, 0)
 
@@ -287,8 +325,17 @@ class Damper:
 
         # Open Damper:
         if VIRTUAL_MODBUS_DEBUG:
-            await asyncio.gather(
-                self.virtual_position(100, 60), self.test_damper(90, 100)
+            _runtime_open = (
+                VIRTUAL_RUNTIME_OPEN
+                * (
+                    100
+                    + randint(-VIRTUAL_RUNTIME_VAR_PERCENT, VIRTUAL_RUNTIME_VAR_PERCENT)
+                )
+                / 100
+            )
+
+            _, self._runtime_open = await asyncio.gather(
+                self.virtual_position(100, _runtime_open), self.test_damper(90, 100)
             )
         else:
             self.test_damper(90, 100)
@@ -398,6 +445,8 @@ class Damper:
         print(
             f"{CRED}Runtime, {self.name}, Target Position {target_position}: {runtime:.1f}s{CEND}"
         )
+
+        return runtime
 
 
 if __name__ == "__main__":

@@ -1,0 +1,126 @@
+title: Home
+views:
+  - path: default_view
+    title: Home
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: entities
+                title: Modbus 1
+                entities:
+                  - entity: cover.modbus_1
+                state_color: true
+              - type: horizontal-stack
+                cards:
+                  - type: entity
+                    entity: cover.modbus_1
+                    attribute: Last runtime close
+                    name: Last runtime close
+                    unit: s
+                    icon: 'hass:timer'
+                  - type: entity
+                    entity: cover.modbus_1
+                    attribute: Last runtime open
+                    name: Last runtime open
+                    unit: s
+                    icon: 'hass:timer'
+              - type: horizontal-stack
+                cards:
+                  - type: entity
+                    entity: cover.modbus_1
+                    attribute: Type ASN
+                    name: Type ASN
+                    icon: 'hass:clipboard-text'
+                  - type: entity
+                    entity: cover.modbus_1
+                    attribute: Manufacturing Date
+                    name: Manufacturing Date
+                    icon: 'hass:calendar'
+              - type: gauge
+                entity: sensor.modbus_1_position
+                min: 0
+                max: 100
+                severity:
+                  green: 100
+                  yellow: 50
+                  red: 0
+              - type: horizontal-stack
+                cards:
+                  - type: entity
+                    entity: cover.modbus_1
+                    name: Modbus Address
+                    icon: 'hass:identifier'
+                    attribute: Modbus Address
+                  - type: entity
+                    entity: cover.modbus_1
+                    name: Serial No
+                    icon: 'hass:fingerprint'
+                    attribute: Factory Seq Num
+      - type: vertical-stack
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: entities
+                title: Modbus 2
+                entities:
+                  - entity: cover.modbus_2
+                state_color: true
+              - type: horizontal-stack
+                cards:
+                  - type: entity
+                    entity: cover.modbus_2
+                    attribute: Last runtime close
+                    name: Last runtime close
+                    unit: s
+                    icon: 'hass:timer'
+                  - type: entity
+                    entity: cover.modbus_2
+                    attribute: Last runtime open
+                    name: Last runtime open
+                    unit: s
+                    icon: 'hass:timer'
+              - type: horizontal-stack
+                cards:
+                  - type: entity
+                    entity: cover.modbus_2
+                    attribute: Type ASN
+                    name: Type ASN
+                    icon: 'hass:clipboard-text'
+                  - type: entity
+                    entity: cover.modbus_2
+                    attribute: Manufacturing Date
+                    name: Manufacturing Date
+                    icon: 'hass:calendar'
+              - type: gauge
+                entity: sensor.modbus_2_position
+                min: 0
+                max: 100
+                severity:
+                  green: 100
+                  yellow: 50
+                  red: 0
+              - type: horizontal-stack
+                cards:
+                  - type: entity
+                    entity: cover.modbus_2
+                    name: Modbus Address
+                    icon: 'hass:identifier'
+                    attribute: Modbus Address
+                  - type: entity
+                    entity: cover.modbus_2
+                    name: Serial No
+                    icon: 'hass:fingerprint'
+                    attribute: Factory Seq Num
+  - badges: []
+    cards:
+      - type: button
+        tap_action:
+          action: toggle
+        hold_action:
+          action: more-info
+        show_icon: true
+        show_name: true
+        show_state: true
+        entity: script.restart_server

@@ -10,6 +10,9 @@ from homeassistant.components.cover import (
     SUPPORT_OPEN,
     SUPPORT_SET_POSITION,
     SUPPORT_SET_TILT_POSITION,
+    SUPPORT_OPEN_TILT,
+    SUPPORT_CLOSE_TILT,
+    SUPPORT_STOP_TILT,
     SUPPORT_STOP,
     CoverEntity,
 )
@@ -68,12 +71,20 @@ class DamperCover(CoverEntity):
         self._is_closed = False
 
         # Additional custom attributes for the Damper implementation of Cover:
+        # Note: The value of these attributes are loaded from the damper object
         self._damper._attributes = {
             "Modbus Address": self._damper._modbus_address,
             "Type ASN": self._damper._type_asn,
             "Manufacturing Date": self._damper._manufacturing_date,
             "Factory Index": self._damper._factory_index,
             "Factory Seq Num": self._damper._factory_seq_num,
+            "Last runtime close": self._damper._runtime_close,
+            "Last runtime open": self._damper._runtime_open,
+            "Last power": self._damper._power,
+            "Last overall indicator": self._damper._overall_indicator,
+            "Last runtime close indicator": self._damper._runtime_close_indicator,
+            "Last runtime open indiator": self._damper._runtime_open_indicator,
+            "Last power indicator": self._damper._power_indicator,
         }
 
     @property
@@ -145,12 +156,30 @@ class DamperCover(CoverEntity):
         """Return the supported features."""
 
         return (
-            SUPPORT_CLOSE | SUPPORT_OPEN | SUPPORT_SET_POSITION | SUPPORT_STOP
+            SUPPORT_CLOSE
+            | SUPPORT_OPEN
+            | SUPPORT_SET_POSITION
+            | SUPPORT_STOP
+            | SUPPORT_OPEN_TILT
         )  # TO DO: SUPPORT_STOP is misused to start testing...
 
     @property
     def device_state_attributes(self):
         """Return device specific state attributes."""
+        self._damper._attributes = {
+            "Modbus Address": self._damper._modbus_address,
+            "Type ASN": self._damper._type_asn,
+            "Manufacturing Date": self._damper._manufacturing_date,
+            "Factory Index": self._damper._factory_index,
+            "Factory Seq Num": self._damper._factory_seq_num,
+            "Last runtime close": self._damper._runtime_close,
+            "Last runtime open": self._damper._runtime_open,
+            "Last power": self._damper._power,
+            "Last overall indicator": self._damper._overall_indicator,
+            "Last runtime close indicator": self._damper._runtime_close_indicator,
+            "Last runtime open indiator": self._damper._runtime_open_indicator,
+            "Last power indicator": self._damper._power_indicator,
+        }
         return self._damper._attributes
 
         # TIP: https://developers.home-assistant.io/docs/dev_101_states
@@ -164,6 +193,13 @@ class DamperCover(CoverEntity):
         self._is_opening = True
         self._is_closing = False
         await self._damper.set_position(100)
+
+    async def async_open_cover_tilt(
+        self, **kwargs
+    ):  # ADDED for testing UI only. No implementation!
+        """Open the cover tilt."""
+        print("Hello from async_open_cover_tilt")
+        return
 
     async def async_set_cover_position(self, **kwargs):
         """Move the cover to a specific position."""
