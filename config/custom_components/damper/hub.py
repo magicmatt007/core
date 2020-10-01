@@ -318,7 +318,7 @@ class Damper:
             # print(f"A: {a}")
             # print(f"b: {b}")
         else:
-            self.test_damper(90, 0)
+            self._runtime_close = await self.test_damper(90, 0)
 
         print("Preparing for opening...")
         await asyncio.sleep(5)
@@ -338,7 +338,7 @@ class Damper:
                 self.virtual_position(100, _runtime_open), self.test_damper(90, 100)
             )
         else:
-            self.test_damper(90, 100)
+            self._runtime_open = await self.test_damper(90, 100)
 
     async def virtual_position(self, position, runtime):
         if self._current_position < position:
@@ -364,6 +364,10 @@ class Damper:
 
             if not VIRTUAL_MODBUS_DEBUG:
                 await self.set_position(target_position)
+                if target_position == 0:
+                    await self.spring_close()  # TO DO: Consider better coding....
+                else:
+                    await self.set_position(target_position)
 
             # data["state"] = "Closing"
             # TO DO: How to handle update of cover attributes like state, is_closing, ...?
