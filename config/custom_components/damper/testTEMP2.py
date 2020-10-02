@@ -1,23 +1,20 @@
-#!/usr/bin/env python3
-# countasync.py
+from const import (
+    DOMAIN,
+    VIRTUAL_MODBUS_DEBUG,
+    VIRTUAL_RUNTIME_OPEN,
+    VIRTUAL_RUNTIME_CLOSE,
+    VIRTUAL_RUNTIME_VAR_PERCENT,
+    TEST_CRITERIA,
+)
 
-import asyncio
+# ratio = self._runtime_close / TEST_CRITERIA["GMA151"].RUNTIME_OPEN_MAX
 
+# print("VIRTUAL_RUNTIME_OPEN")
 
-async def count():
-    print("One")
-    await asyncio.sleep(1)
-    print("Two")
+print(VIRTUAL_RUNTIME_OPEN)
+print(TEST_CRITERIA)
 
-
-async def main():
-    await asyncio.gather(count(), count(), count())
-
-
-if __name__ == "__main__":
-    import time
-
-    s = time.perf_counter()
-    asyncio.run(main())
-    elapsed = time.perf_counter() - s
-    print(f"{__file__} executed in {elapsed:0.2f} seconds.")
+model = "GMA161"
+print(TEST_CRITERIA["GMA151"]["RUNTIME_OPEN_MAX"])
+print(TEST_CRITERIA[model]["RUNTIME_OPEN_MAX"])
+# print(TEST_CRITERIA["GMA151"].RUNTIME_OPEN_MAX)

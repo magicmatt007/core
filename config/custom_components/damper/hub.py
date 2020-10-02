@@ -15,10 +15,12 @@ from .const import (
     VIRTUAL_RUNTIME_OPEN,
     VIRTUAL_RUNTIME_CLOSE,
     VIRTUAL_RUNTIME_VAR_PERCENT,
+    TEST_CRITERIA,
 )  # might need to remove the . from .const, when running in homeassistant instead of command line
 
 import json
 import asyncio
+from enum import Enum
 
 ### Imports from within this project:
 from .modbusAutoAddress import *
@@ -33,6 +35,12 @@ from .modbusInstrument import ModbusInstrument
 
 config_dir = os.path.join(os.getcwd())
 print(f"OS based dir: {config_dir}")
+
+
+class Indicator(Enum):
+    PASS = 1
+    WARNING = 2
+    FAILURE = 3
 
 
 class Hub:
@@ -109,7 +117,7 @@ class Hub:
                     factory_index = instrument.factoryIndex()
                     factory_seq_num = instrument.factorySeqNum()
                 else:
-                    type_asn = "GRA126"
+                    type_asn = "GRA999-virtual"
                     manufacturing_date = "31.12.2020"
                     factory_index = "A"
                     factory_seq_num = "01234567890"
@@ -339,6 +347,54 @@ class Damper:
             )
         else:
             self._runtime_open = await self.test_damper(90, 100)
+
+        # Convert test results into indicators:
+
+        ratio = self._runtime_close / TEST_CRITERIA[self._type_asn]["RUNTIME_CLOSE_MAX"]
+        _indicator = self.indicator(ratio, 1, 0.9)
+        _i1 = _indicator
+        print(f"Indicator close: Name: {_indicator.name}, Value: {_indicator.value}")
+        self._runtime_close_indicator = _indicator.name
+
+        ratio = self._runtime_open / TEST_CRITERIA[self._type_asn]["RUNTIME_OPEN_MAX"]
+        _indicator = self.indicator(ratio, 1, 0.9)
+        _i2 = _indicator
+        print(f"Indicator open: Name: {_indicator.name}, Value: {_indicator.value}")
+        self._runtime_open_indicator = _indicator.name
+
+        ratio = randint(8, 12) / 10  # TO DO: Use power
+        _indicator = self.indicator(ratio, 1, 0.9)
+        _i3 = _indicator
+        print(f"Indicator power: Name: {_indicator.name}, Value: {_indicator.value}")
+        self._power_indicator = _indicator.name
+
+        _indicator = Indicator(
+            max(
+                _i1.value,
+                _i2.value,
+                _i3.value,
+            )
+        )
+
+        print(f"Indicator overall: Name: {_indicator.name}, Value: {_indicator.value}")
+        self._overall_indicator = _indicator.name
+
+        # _indicator = Indicator(
+        #     max(
+        #         self._runtime_close_indicator.value,
+        #         self._runtime_open_indicator.value,
+        #         self._power_indicator.value,
+        #     )
+        # )
+
+    def indicator(self, ratio, fail, warn):
+        if ratio > fail:
+            indicator = Indicator.FAILURE
+        elif ratio >= warn:
+            indicator = Indicator.WARNING
+        else:
+            indicator = Indicator.PASS
+        return indicator
 
     async def virtual_position(self, position, runtime):
         if self._current_position < position:
