@@ -19,13 +19,13 @@ views:
                     attribute: Last runtime close
                     name: Last runtime close
                     unit: s
-                    icon: 'hass:timer'
+                    icon: 'hass:timer-outline'
                   - type: entity
                     entity: cover.modbus_1
                     attribute: Last runtime open
                     name: Last runtime open
                     unit: s
-                    icon: 'hass:timer'
+                    icon: 'hass:timer-outline'
               - type: horizontal-stack
                 cards:
                   - type: entity
@@ -74,13 +74,13 @@ views:
                     attribute: Last runtime close
                     name: Last runtime close
                     unit: s
-                    icon: 'hass:timer'
+                    icon: 'hass:timer-outline'
                   - type: entity
                     entity: cover.modbus_2
                     attribute: Last runtime open
                     name: Last runtime open
                     unit: s
-                    icon: 'hass:timer'
+                    icon: 'hass:timer-outline'
               - type: horizontal-stack
                 cards:
                   - type: entity
@@ -110,6 +110,116 @@ views:
                     attribute: Modbus Address
                   - type: entity
                     entity: cover.modbus_2
+                    name: Serial No
+                    icon: 'hass:fingerprint'
+                    attribute: Factory Seq Num
+      - type: vertical-stack
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: entities
+                title: Modbus 3
+                entities:
+                  - entity: cover.modbus_3
+                state_color: true
+              - type: horizontal-stack
+                cards:
+                  - type: entity
+                    entity: cover.modbus_3
+                    attribute: Last runtime close
+                    name: Last runtime close
+                    unit: s
+                    icon: 'hass:timer-outline'
+                  - type: entity
+                    entity: cover.modbus_3
+                    attribute: Last runtime open
+                    name: Last runtime open
+                    unit: s
+                    icon: 'hass:timer-outline'
+              - type: horizontal-stack
+                cards:
+                  - type: entity
+                    entity: cover.modbus_3
+                    attribute: Type ASN
+                    name: Type ASN
+                    icon: 'hass:clipboard-text'
+                  - type: entity
+                    entity: cover.modbus_3
+                    attribute: Manufacturing Date
+                    name: Manufacturing Date
+                    icon: 'hass:calendar'
+              - type: gauge
+                entity: sensor.modbus_3_position
+                min: 0
+                max: 100
+                severity:
+                  green: 100
+                  yellow: 50
+                  red: 0
+              - type: horizontal-stack
+                cards:
+                  - type: entity
+                    entity: cover.modbus_3
+                    name: Modbus Address
+                    icon: 'hass:identifier'
+                    attribute: Modbus Address
+                  - type: entity
+                    entity: cover.modbus_3
+                    name: Serial No
+                    icon: 'hass:fingerprint'
+                    attribute: Factory Seq Num
+      - type: vertical-stack
+        cards:
+          - type: vertical-stack
+            cards:
+              - type: entities
+                title: Modbus 4
+                entities:
+                  - entity: cover.modbus_4
+                state_color: true
+              - type: horizontal-stack
+                cards:
+                  - type: entity
+                    entity: cover.modbus_4
+                    attribute: Last runtime close
+                    name: Last runtime close
+                    unit: s
+                    icon: 'hass:timer-outline'
+                  - type: entity
+                    entity: cover.modbus_4
+                    attribute: Last runtime open
+                    name: Last runtime open
+                    unit: s
+                    icon: 'hass:timer-outline'
+              - type: horizontal-stack
+                cards:
+                  - type: entity
+                    entity: cover.modbus_4
+                    attribute: Type ASN
+                    name: Type ASN
+                    icon: 'hass:clipboard-text'
+                  - type: entity
+                    entity: cover.modbus_4
+                    attribute: Manufacturing Date
+                    name: Manufacturing Date
+                    icon: 'hass:calendar'
+              - type: gauge
+                entity: sensor.modbus_4_position
+                min: 0
+                max: 100
+                severity:
+                  green: 100
+                  yellow: 50
+                  red: 0
+              - type: horizontal-stack
+                cards:
+                  - type: entity
+                    entity: cover.modbus_4
+                    name: Modbus Address
+                    icon: 'hass:identifier'
+                    attribute: Modbus Address
+                  - type: entity
+                    entity: cover.modbus_4
                     name: Serial No
                     icon: 'hass:fingerprint'
                     attribute: Factory Seq Num
