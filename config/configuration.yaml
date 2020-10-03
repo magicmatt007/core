@@ -10,6 +10,10 @@ automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
+input_boolean:
+  switch_tv:
+    name: TV switch
+
 panel_custom:
   - name: example-panel
     # url_path needs to be unique for each panel_custom config
