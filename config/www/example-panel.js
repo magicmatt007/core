@@ -30,11 +30,13 @@ class ExamplePanel extends LitElement {
         <pre>${JSON.stringify(this.panel.config, undefined, 2)}</pre>
         Current route
         <pre>${JSON.stringify(this.route, undefined, 2)}</pre>
-        ${Object.values(this.hass.states).map(i => html`<li>
-        ${i.attributes["friendly_name"]}: ${i.state}, ${i.attributes["Last runtime open"]}s, ${i.attributes["Last runtime close"]}s</li>`)}
         <br>
-        ${Object.keys(this.hass.states).map(i => html`<li>
-        ${i}: ${this.hass.states[i].state} </li> `)}
+        ${Object.keys(this.hass.states)
+        .filter(i => i.startsWith("cover."))
+        .map(i => html`<li>
+        ${i}: ${this.hass.states[i].state}, ${i.startsWith("cover.")}
+        </li> `)}
+
       </wired-card>
     `;
   }
