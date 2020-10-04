@@ -1,22 +1,28 @@
 import "https://unpkg.com/wired-card@2.1.0/lib/wired-card.js?module";
 import {
-    LitElement,
-    html,
-    css,
+  LitElement,
+  html,
+  css,
 } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 
 class ExamplePanel extends LitElement {
-    static get properties() {
-        return {
-            hass: { type: Object },
-            narrow: { type: Boolean },
-            route: { type: Object },
-            panel: { type: Object },
-        };
-    }
+  static get properties() {
+    return {
+      hass: { type: Object },
+      narrow: { type: Boolean },
+      route: { type: Object },
+      panel: { type: Object },
+    };
+  }
 
-    render() {
-        return html`
+  constructor() {
+    super();
+    this.name = 'World';
+    this.myArray = ['a', 'b', 'c']
+  }
+
+  render() {
+    return html`
       <wired-card elevation="2">
         <p>There are ${Object.keys(this.hass.states).length} entities.</p>
         <p>The screen is${this.narrow ? "" : " not"} narrow.</p>
@@ -24,12 +30,17 @@ class ExamplePanel extends LitElement {
         <pre>${JSON.stringify(this.panel.config, undefined, 2)}</pre>
         Current route
         <pre>${JSON.stringify(this.route, undefined, 2)}</pre>
+        ${Object.values(this.hass.states).map(i => html`<li>
+        ${i.attributes["friendly_name"]}: ${i.state}, ${i.attributes["Last runtime open"]}s, ${i.attributes["Last runtime close"]}s</li>`)}
+        <br>
+        ${Object.keys(this.hass.states).map(i => html`<li>
+        ${i}: ${this.hass.states[i].state} </li> `)}
       </wired-card>
     `;
-    }
+  }
 
-    static get styles() {
-        return css`
+  static get styles() {
+    return css`
       :host {
         background-color: #fafafa;
         padding: 16px;
@@ -44,6 +55,6 @@ class ExamplePanel extends LitElement {
         margin: 0 auto;
       }
     `;
-    }
+  }
 }
 customElements.define("example-panel", ExamplePanel);
