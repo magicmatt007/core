@@ -83,7 +83,7 @@ class DamperCover(CoverEntity):
             "Last power": self._damper._power,
             "Last overall indicator": self._damper._overall_indicator,
             "Last runtime close indicator": self._damper._runtime_close_indicator,
-            "Last runtime open indiator": self._damper._runtime_open_indicator,
+            "Last runtime open indicator": self._damper._runtime_open_indicator,
             "Last power indicator": self._damper._power_indicator,
         }
 
