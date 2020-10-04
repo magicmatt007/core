@@ -160,6 +160,15 @@ class Hub:
             pickle.dump(self, myfile, pickle.HIGHEST_PROTOCOL)
         myfile.close()
 
+    def delete_stored_data(self):
+        print("Deleting data...")
+        print(f"FILE = {self.FILE}")
+
+        if os.path.exists(self.FILE):
+            os.remove(self.FILE)
+        else:
+            print("The file does not exist")
+
     def get_stored_data(self):
         """Return stored data."""
         if not exists(self.FILE):

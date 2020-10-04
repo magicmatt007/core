@@ -1,6 +1,7 @@
 config/*
 config2/*
 !config/custom_components
+!config/configuration_backup.yaml
 !config/www
 # config/.storage
 # config/.cloud

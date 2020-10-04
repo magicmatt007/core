@@ -27,7 +27,7 @@ async def async_setup_entry(
     api = hass.data[DOMAIN][entry.unique_id][SYNO_API]
 
     if SynoSurveillanceStation.CAMERA_API_KEY not in api.dsm.apis:
-        return True
+        return
 
     surveillance_station = api.surveillance_station
     await hass.async_add_executor_job(surveillance_station.update)
@@ -60,9 +60,13 @@ class SynoDSMCamera(SynologyDSMEntity, Camera):
         """Return the device information."""
         return {
             "identifiers": {(DOMAIN, self._api.information.serial, self._camera.id)},
-            "name": self.name,
+            "name": self._camera.name,
             "model": self._camera.model,
-            "via_device": (DOMAIN, self._api.information.serial),
+            "via_device": (
+                DOMAIN,
+                self._api.information.serial,
+                SynoSurveillanceStation.INFO_API_KEY,
+            ),
         }
 
     @property

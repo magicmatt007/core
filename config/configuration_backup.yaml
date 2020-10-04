@@ -1,0 +1,26 @@
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+input_boolean:
+  switch_tv:
+    name: TV switch
+
+panel_custom:
+  - name: damper-panel
+    # url_path needs to be unique for each panel_custom config
+    url_path: redirect-server-controls
+    sidebar_title: Damper Panel
+    sidebar_icon: mdi:server
+    module_url: /local/damper-panel.js
+    config:
+      # Data you want to make available to panel
+      hello: world

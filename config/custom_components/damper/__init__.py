@@ -77,6 +77,13 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
         )
     )
     if unload_ok:
+        FILE = hass.config.path("{}.pickle".format(DOMAIN))
+        print(f"File in __init__.py, unload entry: {FILE}")
+        hub1 = hub.Hub(
+            FILE, "My Hub", "/serialbyid/bla"
+        )  # TO DO: get NAME and COM from config entry
+        hub1 = hub1.delete_stored_data()
+
         hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok
