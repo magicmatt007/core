@@ -17,8 +17,8 @@ class DamperPanel extends LitElement {
 
   constructor() {
     super();
-    this.name = 'World';
-    this.myArray = ['a', 'b', 'c']
+    this.name = "World";
+    this.myArray = ["a", "b", "c"];
   }
 
   render() {
@@ -27,26 +27,44 @@ class DamperPanel extends LitElement {
       <table>
       <tr>
       <th>Modbus Address</th>
+      <th>Name</th>
+      <th>Model</th>
       <th>State</th>
       <th>Current position</th>
       <th>Last runtime open</th>
       <th>Last runtime close</th>
+      <th>Last power</th>
       <th>Last runtime open indicator</th>
       <th>Last runtime close indicator</th>
+      <th>Last power indicator</th>
+      <th>Last tested at</th>
       </tr>
       ${Object.keys(this.hass.states)
-        .filter(i => i.startsWith("cover."))
-        .map(i => html`
-        <tr>
-          <td> ${this.hass.states[i].attributes["Modbus Address"]} </td>
-          <td> ${this.hass.states[i].state} </td>
-          <td> ${this.hass.states[i].attributes["current_position"]} </td>
-          <td> ${this.hass.states[i].attributes["Last runtime open"]} </td>
-          <td> ${this.hass.states[i].attributes["Last runtime close"]} </td>
-          <td> ${this.hass.states[i].attributes["Last runtime open indicator"]} </td>
-          <td> ${this.hass.states[i].attributes["Last runtime close indicator"]} </td>
-        </tr> `)
-      }
+        .filter((i) => i.startsWith("cover."))
+        .map(
+          (i) => html`
+            <tr>
+              <td>${this.hass.states[i].attributes["Modbus Address"]}</td>
+              <td>${this.hass.states[i].attributes["friendly_name"]}</td>
+              <td>${this.hass.states[i].attributes["Type ASN"]}</td>
+              <td>${this.hass.states[i].state}</td>
+              <td>${this.hass.states[i].attributes["current_position"]}</td>
+              <td>${this.hass.states[i].attributes["Last runtime open"]}</td>
+              <td>${this.hass.states[i].attributes["Last runtime close"]}</td>
+              <td>${this.hass.states[i].attributes["Last power"]}</td>
+              <td>
+                ${this.hass.states[i].attributes["Last runtime open indicator"]}
+              </td>
+              <td>
+                ${this.hass.states[i].attributes[
+                  "Last runtime close indicator"
+                ]}
+              </td>
+              <td>${this.hass.states[i].attributes["Last power indicator"]}</td>
+              <td>${this.hass.states[i].attributes["Last tested at"]}</td>
+            </tr>
+          `
+        )}
 
       </table>
       </wired - card >
