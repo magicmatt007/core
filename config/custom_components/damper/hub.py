@@ -20,6 +20,7 @@ from .const import (
 
 import json
 import asyncio
+from datetime import date, datetime
 from enum import Enum
 
 ### Imports from within this project:
@@ -116,14 +117,13 @@ class Hub:
                     )  # Convert to str. Date object not serializable to JSON in HASSIO
                     factory_index = instrument.factoryIndex()
                     factory_seq_num = instrument.factorySeqNum()
-                    
+
                     # DEBUG: Handle missing device info on GNA Prototype:
-                    if type_asn == "": 
+                    if type_asn == "":
                         type_asn = "GNA151.1E/T12M"
                         manufacturing_date = "2021-01-31"
                         factory_index = "123456"
                         factory_seq_num = "Z"
-
 
                 else:
                     type_asn = "GRA999-virtual"
@@ -232,13 +232,7 @@ class Damper:
         self._runtime_close_indicator = None
         self._runtime_open_indicator = None
         self._power_indicator = None
-        # self._runtime_open: float
-        # self._runtime_close: float
-        # self._power: float
-        # self._overall_indicator: str
-        # self._runtime_close_indicator: str
-        # self._runtime_open_indicator: str
-        # self._power_indicator: str
+        self._tested_at = None
 
         # States:
         self._id = 1  # TO DO: Remove or do a proper implementation
@@ -317,7 +311,6 @@ class Damper:
                 print(f"Current Position: {self._current_position}")
                 await asyncio.sleep(0.05)
 
-
     async def update(self):
         """
         Set dummy cover to the given position.
@@ -366,6 +359,10 @@ class Damper:
         else:
             self._runtime_close = await self.test_damper(90, 0)
 
+        CRED = "\033[91m"
+        CEND = "\033[0m"
+        print(f"{CRED}Runtime Close {self.name}: {self._runtime_close:.1f}s{CEND}")
+
         print("Preparing for opening...")
         await asyncio.sleep(5)
 
@@ -386,6 +383,18 @@ class Damper:
         else:
             self._runtime_open = await self.test_damper(90, 100)
 
+        CRED = "\033[91m"
+        CEND = "\033[0m"
+        print(f"{CRED}Runtime Open {self.name}: {self._runtime_open:.1f}s{CEND}")
+
+        # Get power consumption:
+        self._power = (
+            3 + randint(-10, 10) / 10
+        )  # TODO: Can we actually get a leading preventive maintenance indicator from the actuator?
+        CRED = "\033[91m"
+        CEND = "\033[0m"
+        print(f"{CRED}Power {self.name}: {self._power:.1f}W{CEND}")
+
         # Convert test results into indicators:
 
         ratio = self._runtime_close / TEST_CRITERIA[self._type_asn]["RUNTIME_CLOSE_MAX"]
@@ -400,7 +409,8 @@ class Damper:
         print(f"Indicator open: Name: {_indicator.name}, Value: {_indicator.value}")
         self._runtime_open_indicator = _indicator.name
 
-        ratio = randint(8, 12) / 10  # TO DO: Use power
+        # ratio = randint(8, 12) / 10  # TO DO: Use power
+        ratio = self._power / TEST_CRITERIA[self._type_asn]["POWER_MAX"]
         _indicator = self.indicator(ratio, 1, 0.9)
         _i3 = _indicator
         print(f"Indicator power: Name: {_indicator.name}, Value: {_indicator.value}")
@@ -417,13 +427,7 @@ class Damper:
         print(f"Indicator overall: Name: {_indicator.name}, Value: {_indicator.value}")
         self._overall_indicator = _indicator.name
 
-        # _indicator = Indicator(
-        #     max(
-        #         self._runtime_close_indicator.value,
-        #         self._runtime_open_indicator.value,
-        #         self._power_indicator.value,
-        #     )
-        # )
+        self._tested_at = str(datetime.now())
 
     def indicator(self, ratio, fail, warn):
         if ratio > fail:
@@ -515,15 +519,11 @@ class Damper:
                     f"{self._modbus_address} - Current position: {current}, ({(current/100*90):.1f}°)"
                 )
                 position = round(current / 10000 * 90, 0)
-                # data["position"] = position
-                # emit(damper_id, dumps(data), broadcast = True)  # dumps() converts the dictionnary to JSON
                 await asyncio.sleep(INTERVAL)
                 # time.sleep(interval)
 
-                # data["state"] = "Closed"
                 runtime_final = round((time.time() - startTime), 1)
                 print(f"Runtime Final: {runtime_final:.1f}s")
-                # emit(damper_id, dumps(data), broadcast = True)  # dumps() converts the dictionnary to JSON
 
         except Exception as e:
             error_count += 1
@@ -543,11 +543,6 @@ class Damper:
 
         # data["state"] = "Closed"
         runtime = round((time.time() - startTime), 1)
-        CRED = "\033[91m"
-        CEND = "\033[0m"
-        print(
-            f"{CRED}Runtime, {self.name}, Target Position {target_position}: {runtime:.1f}s{CEND}"
-        )
 
         return runtime
 
