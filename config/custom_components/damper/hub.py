@@ -116,6 +116,15 @@ class Hub:
                     )  # Convert to str. Date object not serializable to JSON in HASSIO
                     factory_index = instrument.factoryIndex()
                     factory_seq_num = instrument.factorySeqNum()
+                    
+                    # DEBUG: Handle missing device info on GNA Prototype:
+                    if type_asn == "": 
+                        type_asn = "GNA151.1E/T12M"
+                        manufacturing_date = "2021-01-31"
+                        factory_index = "123456"
+                        factory_seq_num = "Z"
+
+
                 else:
                     type_asn = "GRA999-virtual"
                     manufacturing_date = "31.12.2020"
@@ -159,6 +168,15 @@ class Hub:
         with open(self.FILE, "wb") as myfile:
             pickle.dump(self, myfile, pickle.HIGHEST_PROTOCOL)
         myfile.close()
+
+    def delete_stored_data(self):
+        print("Deleting data...")
+        print(f"FILE = {self.FILE}")
+
+        if os.path.exists(self.FILE):
+            os.remove(self.FILE)
+        else:
+            print("The file does not exist")
 
     def get_stored_data(self):
         """Return stored data."""
@@ -279,6 +297,26 @@ class Damper:
                 await asyncio.sleep(0.1)
 
         # self._target_position = position
+
+    async def spring_close(self):
+        """
+        Set dummy cover to the given position.
+
+        State is announced a random number of seconds later.
+        """
+        print(f"Hello from hub.damper.spring_close()")
+
+        virtual_direction = -1
+
+        if not VIRTUAL_MODBUS_DEBUG:
+            i = ModbusInstrument(self._modbus_address)
+            i.setpoint(0)
+        else:
+            while (self._current_position - self._target_position) != 0:
+                self._current_position += 1 * virtual_direction
+                print(f"Current Position: {self._current_position}")
+                await asyncio.sleep(0.05)
+
 
     async def update(self):
         """
@@ -419,9 +457,14 @@ class Damper:
             startTime = time.time()
 
             if not VIRTUAL_MODBUS_DEBUG:
-                await self.set_position(target_position)
+                # await self.set_position(target_position)
                 if target_position == 0:
                     await self.spring_close()  # TO DO: Consider better coding....
+                    # TO DO: Replace this quick fix of a slow responding GDB111 with a route cause problem investigation:
+                    if self._type_asn[0:6] == "GDB111":
+                        print("Hello from GDB111 sleeping....")
+                        await asyncio.sleep(10)
+                        print("Woke up...")
                 else:
                     await self.set_position(target_position)
 
@@ -461,7 +504,7 @@ class Damper:
                 ):  # TO DO: Replace this clumsy end position detection with a better one
                     counter = counter + 1
                     print("break counter" + str(counter))
-                    if counter > 2:
+                    if counter > 3:
                         print("break realy")
                         counter = 0
                         break
