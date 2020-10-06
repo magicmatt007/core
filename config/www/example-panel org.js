@@ -1,22 +1,22 @@
 import "https://unpkg.com/wired-card@2.1.0/lib/wired-card.js?module";
 import {
-    LitElement,
-    html,
-    css,
+  LitElement,
+  html,
+  css,
 } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 
 class ExamplePanel extends LitElement {
-    static get properties() {
-        return {
-            hass: { type: Object },
-            narrow: { type: Boolean },
-            route: { type: Object },
-            panel: { type: Object },
-        };
-    }
+  static get properties() {
+    return {
+      hass: { type: Object },
+      narrow: { type: Boolean },
+      route: { type: Object },
+      panel: { type: Object },
+    };
+  }
 
-    render() {
-        return html`
+  render() {
+    return html`
       <wired-card elevation="2">
         <p>There are ${Object.keys(this.hass.states).length} entities.</p>
         <p>The screen is${this.narrow ? "" : " not"} narrow.</p>
@@ -26,10 +26,10 @@ class ExamplePanel extends LitElement {
         <pre>${JSON.stringify(this.route, undefined, 2)}</pre>
       </wired-card>
     `;
-    }
+  }
 
-    static get styles() {
-        return css`
+  static get styles() {
+    return css`
       :host {
         background-color: #fafafa;
         padding: 16px;
@@ -44,6 +44,6 @@ class ExamplePanel extends LitElement {
         margin: 0 auto;
       }
     `;
-    }
+  }
 }
 customElements.define("example-panel", ExamplePanel);
