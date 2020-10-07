@@ -199,11 +199,6 @@ class Hub:
 
 
 class Damper:
-    # _name: str
-    # _id: int
-    # _is_closed: bool
-    # _is_open: bool
-    # _modbus_address: int
 
     manufacturer = "Siemens"
 
@@ -236,8 +231,11 @@ class Damper:
 
         # States:
         self._id = 1  # TO DO: Remove or do a proper implementation
+        # self._state = STATE_CLOSED   # Not implemeneted in Hub. Derived in Cover from "_is_xxxx"
         self._is_closed = True
         self._is_open = False
+        self._is_closing = False
+        self._is_opening = False
 
         self._target_position = 0
         self._current_position = 0
@@ -257,6 +255,15 @@ class Damper:
         State is announced a random number of seconds later.
         """
         print(f"Hello from hub.damper.set_position({position})")
+
+        if position > self._current_position:
+            # self._state = STATE_OPENING
+            self._is_opening = True
+            self._is_closing = False
+        elif position < self._current_position:
+            # self._state = STATE_CLOSING
+            self._is_closing = True
+            self._is_opening = False
 
         ########################
         # Accomdate for the dodgy spring return set-point implementation in Sep 2020.
@@ -292,6 +299,23 @@ class Damper:
 
         # self._target_position = position
 
+    async def virtual_position(self, position, runtime):
+        if position > self._current_position:
+            self._is_opening = True
+            self._is_closing = False
+        elif position < self._current_position:
+            self._is_closing = True
+            self._is_opening = False
+
+        if self._current_position < position:
+            while self._current_position < position:
+                self._current_position += 1
+                await asyncio.sleep(runtime / 100)
+        else:
+            while self._current_position > position:
+                self._current_position += -1
+                await asyncio.sleep(runtime / 100)
+
     async def spring_close(self):
         """
         Set dummy cover to the given position.
@@ -326,6 +350,16 @@ class Damper:
             # await asyncio.sleep(0.1)
             self._current_position = self._current_position
 
+        if self._current_position > 95:
+            self._is_open = True
+            self._is_closed = False
+        elif self._current_position < 5:
+            self._is_closed = True
+            self._is_open = False
+        else:
+            self._is_closed = False
+            self._is_open = False
+
     async def modbus_test(self):
 
         print(f"Hello from hub.damper.modbus_test Modbus ({self._modbus_address})")
@@ -354,8 +388,6 @@ class Damper:
             _, self._runtime_close = await asyncio.gather(
                 self.virtual_position(0, _runtime_close), self.test_damper(90, 0)
             )
-            # print(f"A: {a}")
-            # print(f"b: {b}")
         else:
             self._runtime_close = await self.test_damper(90, 0)
 
@@ -437,16 +469,6 @@ class Damper:
         else:
             indicator = Indicator.PASS
         return indicator
-
-    async def virtual_position(self, position, runtime):
-        if self._current_position < position:
-            while self._current_position < position:
-                self._current_position += 1
-                await asyncio.sleep(runtime / 100)
-        else:
-            while self._current_position > position:
-                self._current_position += -1
-                await asyncio.sleep(runtime / 100)
 
     async def test_damper(self, runtime_max, target_position):
         RUNTIME_MAX = runtime_max
@@ -549,7 +571,3 @@ class Damper:
 
 if __name__ == "__main__":
     print("hello from __main__")
-
-    # hub = Hub("My Hub", "/serialbyid/bla")
-    # hub.modbusAssignAddress(1)
-    # hub.print_hub()

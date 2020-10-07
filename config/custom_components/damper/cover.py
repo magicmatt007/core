@@ -64,11 +64,11 @@ class DamperCover(CoverEntity):
 
         # These attributes are currently not in the damper class. Should these be added??????
         self._state = STATE_CLOSED
+        self._current_position = 0
         self._is_closed = True
+        self._is_open = False
         self._is_opening = False
         self._is_closing = False
-        self._is_open = False
-        self._is_closed = False
 
         # Additional custom attributes for the Damper implementation of Cover:
         # Note: The value of these attributes are loaded from the damper object
@@ -191,9 +191,6 @@ class DamperCover(CoverEntity):
 
     async def async_open_cover(self, **kwargs):
         """Open the cover."""
-        self._state = STATE_OPENING
-        self._is_opening = True
-        self._is_closing = False
         await self._damper.set_position(100)
 
     async def async_open_cover_tilt(
@@ -205,23 +202,11 @@ class DamperCover(CoverEntity):
 
     async def async_set_cover_position(self, **kwargs):
         """Move the cover to a specific position."""
-        target_position = kwargs[ATTR_POSITION]
-        if target_position > self._damper.position:
-            self._state = STATE_OPENING
-            self._is_opening = True
-            self._is_closing = False
-        elif target_position < self._damper.position:
-            self._state = STATE_CLOSING
-            self._is_closing = True
-            self._is_opening = False
 
         await self._damper.set_position(kwargs[ATTR_POSITION])
 
     async def async_close_cover(self, **kwargs):
         """Close the cover."""
-        self._state = STATE_CLOSING
-        self._is_closing = True
-        self._is_opening = False
 
         ########################
         # Accomdate for the dodgy spring return set-point implementation in Sep 2020.
@@ -240,10 +225,6 @@ class DamperCover(CoverEntity):
         """Stop the cover."""
         ### TO DO: Missused for triggering testing.....
 
-        self._state = STATE_CLOSING
-        self._is_closing = True
-        self._is_opening = False
-
         await self._damper.modbus_test()
 
     async def async_update(self):
@@ -251,20 +232,25 @@ class DamperCover(CoverEntity):
 
         This is the only method that should fetch new data for Home Assistant.
         """
-        # print("Hello from async_update")
+        print("Hello from async_update")
 
         await self._damper.update()
 
-        _current_position = self._damper.position
+        self._current_position = self._damper.position
+        self._is_closed = self._damper._is_closed
+        self._is_open = self._damper._is_open
+        self._is_closing = self._damper._is_closing
+        self._is_opening = self._damper._is_opening
 
-        if _current_position > 95:
-            self._state = STATE_OPEN
-            self._is_open = True
-            self._is_closed = False
-        elif _current_position < 5:
+        if self._is_closed:
             self._state = STATE_CLOSED
-            self._is_closed = True
-            self._is_open = False
+        elif self.is_open:
+            self._state = STATE_OPEN
+        elif self.is_closing:
+            self._state = STATE_CLOSING
+        elif self.is_opening:
+            self._state = STATE_OPENING
         else:
-            self._is_closed = False
-            self._is_open = False
+            self._state = (
+                "UNKNOWN!"  # TODO: Is there an official Hassio state for this case??
+            )
