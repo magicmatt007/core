@@ -1,6 +1,7 @@
 """Platform for sensor integration."""
 import asyncio
 import time
+import voluptuous as vol
 
 from homeassistant.components.cover import (
     ATTR_POSITION,
@@ -24,12 +25,17 @@ from homeassistant.const import (
     TEMP_CELSIUS,
 )
 from homeassistant.helpers.entity import Entity
+from homeassistant.helpers import config_validation as cv, entity_platform, service
+
 
 from .const import DOMAIN
 
 from datetime import timedelta
 
+
 SCAN_INTERVAL = timedelta(seconds=1)
+
+SERVICE_SET_TIMER = "set_timer"
 
 
 async def async_setup_entry(hass, config_entry, async_add_devices):
@@ -51,6 +57,17 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
     # If we have any new devices, add them
     if new_devices:
         async_add_devices(new_devices)
+
+    platform = entity_platform.current_platform.get()
+
+    # This will call Entity.set_sleep_timer(sleep_time=VALUE)
+    platform.async_register_entity_service(
+        SERVICE_SET_TIMER,
+        {
+            vol.Required("sleep_time"): cv.time_period,
+        },
+        "set_sleep_timer",
+    )
 
 
 class DamperCover(CoverEntity):
@@ -232,7 +249,7 @@ class DamperCover(CoverEntity):
 
         This is the only method that should fetch new data for Home Assistant.
         """
-        print("Hello from async_update")
+        # print("Hello from async_update")
 
         await self._damper.update()
 
@@ -254,3 +271,14 @@ class DamperCover(CoverEntity):
             self._state = (
                 "UNKNOWN!"  # TODO: Is there an official Hassio state for this case??
             )
+
+    # async def custom_set_sleep_timer(self, entity, service_call):
+    #     await entity.set_sleep_timer(service_call.data["sleep_time"])
+
+    # async def set_sleep_timer(self, entity, service_call):
+    #     await entity.set_sleep_timer(service_call.data["sleep_time"])
+
+    async def set_sleep_timer(self, sleep_time):
+        print("Hello from set_sleep_timer")
+        # await entity.set_sleep_timer(sleep_time)
+        return

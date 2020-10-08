@@ -4,6 +4,8 @@ import asyncio
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
+# from homeassistant.helpers import config_validation as cv, entity_platform, service
+
 from . import hub
 from .const import DOMAIN
 from datetime import timedelta
@@ -28,6 +30,15 @@ async def async_setup(hass: HomeAssistant, config: dict):
     baloop = hass.config.path("{}.pickle".format(DOMAIN))
     print(f"Baloop: {baloop}")
 
+    # def handle_hello(call):
+    #     """Handle the service call."""
+    #     print("Hello from service call")
+    #     # name = call.data.get(ATTR_NAME, DEFAULT_NAME)
+    #     # hass.states.set("hello_service.hello", name)
+
+    # hass.services.register(DOMAIN, "hello", handle_hello)
+
+    # Return boolean to indicate that initialization was successfully.
     return True
 
 
@@ -58,6 +69,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.async_create_task(
             hass.config_entries.async_forward_entry_setup(entry, component)
         )
+
+    # platform = entity_platform.current_platform.get()
+
+    # # This will call Entity.set_sleep_timer(sleep_time=VALUE)
+    # platform.async_register_entity_service(
+    #     SERVICE_SET_TIMER,
+    #     {
+    #         vol.Required("sleep_time"): cv.time_period,
+    #     },
+    #     "set_sleep_timer",
+    # )
 
     return True
 

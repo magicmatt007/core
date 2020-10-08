@@ -329,6 +329,8 @@ class Damper:
         if not VIRTUAL_MODBUS_DEBUG:
             i = ModbusInstrument(self._modbus_address)
             i.setpoint(0)
+            self._is_closing = True
+            self._is_opening = False
         else:
             while (self._current_position - self._target_position) != 0:
                 self._current_position += 1 * virtual_direction
