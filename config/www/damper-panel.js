@@ -85,7 +85,8 @@ class DamperPanel extends LitElement {
   static get styles() {
     return css`
       : host {
-  background - color: #fafafa;
+  // background - color: #fafafa;
+  background - color: grey;
   padding: 16px;
   display: block;
 }
@@ -94,7 +95,7 @@ wired - card {
   padding: 16px;
   display: block;
   font - size: 18px;
-  max - width: 1200px;
+  max - width: 800;
   margin: 0 auto;
 }
 
