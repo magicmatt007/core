@@ -49,7 +49,7 @@ REQUIRES = [
     "pytz>=2020.1",
     "pyyaml==5.3.1",
     "requests==2.24.0",
-    "ruamel.yaml==0.15.100",
+    "ruamel.yaml==0.16.12",
     "voluptuous==0.12.0",
     "voluptuous-serialize==2.4.0",
     "yarl==1.4.2",
