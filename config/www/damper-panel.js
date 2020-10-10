@@ -17,8 +17,8 @@ class DamperPanel extends LitElement {
 
   constructor() {
     super();
-    this.name = "World";
-    this.myArray = ["a", "b", "c"];
+    // this.name = "World";
+    // this.myArray = ["a", "b", "c"];
   }
 
   render() {
@@ -31,6 +31,8 @@ class DamperPanel extends LitElement {
       <th>Model</th>
       <th>State</th>
       <th>Current position</th>
+      <th>Entity ID</th>
+      <th>Test now</th>
       <th>Last runtime open</th>
       <th>Last runtime close</th>
       <th>Last power</th>
@@ -43,32 +45,41 @@ class DamperPanel extends LitElement {
         .filter((i) => i.startsWith("cover."))
         .map(
           (i) => html`
-            <tr>
+          <tr>
               <td>${this.hass.states[i].attributes["Modbus Address"]}</td>
               <td>${this.hass.states[i].attributes["friendly_name"]}</td>
               <td>${this.hass.states[i].attributes["Type ASN"]}</td>
               <td>${this.hass.states[i].state}</td>
               <td>${this.hass.states[i].attributes["current_position"]}</td>
+              <td>${this.hass.states[i]["entity_id"]}</td>
+              <td><button @click="${e => this.callServiceTest(this.hass.states[i]["entity_id"])}">Click me</button></td>
               <td>${this.hass.states[i].attributes["Last runtime open"]}</td>
               <td>${this.hass.states[i].attributes["Last runtime close"]}</td>
               <td>${this.hass.states[i].attributes["Last power"]}</td>
               <td>
-                ${this.hass.states[i].attributes["Last runtime open indicator"]}
+              ${this.hass.states[i].attributes["Last runtime open indicator"]}
               </td>
               <td>
-                ${this.hass.states[i].attributes[
-                  "Last runtime close indicator"
-                ]}
-              </td>
-              <td>${this.hass.states[i].attributes["Last power indicator"]}</td>
-              <td>${this.hass.states[i].attributes["Last tested at"]}</td>
+              ${this.hass.states[i].attributes[
+            "Last runtime close indicator"
+            ]}
+            </td>
+            <td>${this.hass.states[i].attributes["Last power indicator"]}</td>
+            <td>${this.hass.states[i].attributes["Last tested at"]}</td>
             </tr>
-          `
+            `
         )}
 
-      </table>
-      </wired - card >
-  `;
+            </table>
+            </wired - card >
+            `;
+  }
+
+  callServiceTest(entity_id) {
+    // this.hass.callService(this.domain, this.service, this.serviceData);
+    console.log('Clicked me!');
+    console.log(entity_id);
+    this.hass.callService('damper', 'test_damper', { 'entity_id': entity_id })
   }
 
   static get styles() {
@@ -95,5 +106,6 @@ table, th, td {
 
 `;
   }
+
 }
 customElements.define("damper-panel", DamperPanel);
