@@ -4,7 +4,10 @@
   "dockerFile": "../Dockerfile.dev",
   "postCreateCommand": "mkdir -p config && pip3 install -e .",
   "appPort": 8123,
-  "runArgs": ["-e", "GIT_EDITOR=code --wait"],
+  "runArgs": [
+    "-e",
+    "GIT_EDITOR=code --wait"
+  ],
   "extensions": [
     "ms-python.python",
     "visualstudioexptteam.vscodeintellicode",
@@ -29,5 +32,8 @@
       "!include_dir_merge_list scalar",
       "!include_dir_merge_named scalar"
     ]
-  }
+  },
+  "mounts": [
+    "source=c:/repos/frontend,target=/workspaces/frontend,type=bind,consistency=cached"
+  ]
 }
