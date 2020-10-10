@@ -122,12 +122,12 @@ class Hub:
                     if type_asn == "":
                         type_asn = "GNA151.1E/T12M"
                         manufacturing_date = "2021-01-31"
-                        factory_index = "123456"
-                        factory_seq_num = "Z"
+                        factory_index = "Z"
+                        factory_seq_num = "123456"
 
                 else:
                     type_asn = "GRA999-virtual"
-                    manufacturing_date = "31.12.2020"
+                    manufacturing_date = "2020-12-31"
                     factory_index = "A"
                     factory_seq_num = "01234567890"
 
@@ -461,7 +461,8 @@ class Damper:
         print(f"Indicator overall: Name: {_indicator.name}, Value: {_indicator.value}")
         self._overall_indicator = _indicator.name
 
-        self._tested_at = str(datetime.now())
+        # self._tested_at = str(datetime.now())
+        self._tested_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def indicator(self, ratio, fail, warn):
         if ratio > fail:
