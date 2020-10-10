@@ -1,4 +1,8 @@
 """Platform for sensor integration."""
+import logging
+
+_LOGGER = logging.getLogger(__name__)
+
 import asyncio
 import time
 import voluptuous as vol
@@ -36,6 +40,7 @@ from datetime import timedelta
 SCAN_INTERVAL = timedelta(seconds=1)
 
 SERVICE_SET_TIMER = "set_timer"
+SERVICE_TEST_DAMPER = "test_damper"
 
 
 async def async_setup_entry(hass, config_entry, async_add_devices):
@@ -67,6 +72,13 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
             vol.Required("sleep_time"): cv.time_period,
         },
         "set_sleep_timer",
+    )
+
+    # This will call Entity.set_sleep_timer(sleep_time=VALUE)
+    platform.async_register_entity_service(
+        SERVICE_TEST_DAMPER,
+        {},
+        "test_damper",
     )
 
 
@@ -281,4 +293,10 @@ class DamperCover(CoverEntity):
     async def set_sleep_timer(self, sleep_time):
         print("Hello from set_sleep_timer")
         # await entity.set_sleep_timer(sleep_time)
+        return
+
+    async def test_damper(self):
+        print("Hello from test_damper service")
+        _LOGGER.debug("Hello from test_damper service")
+        await self._damper.modbus_test()
         return
