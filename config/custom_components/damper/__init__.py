@@ -1,4 +1,8 @@
 """The Detailed Hello World Push integration."""
+import logging
+
+_LOGGER = logging.getLogger(__name__)
+
 import asyncio
 
 from homeassistant.config_entries import ConfigEntry
@@ -22,6 +26,8 @@ async def async_setup(hass: HomeAssistant, config: dict):
     # Ensure our name space for storing objects is a known type. A dict is
     # common/preferred as it allows a separate instance of your class for each
     # instance that has been created in the UI.
+    _LOGGER.info("My first logging info message from async_setup")
+    _LOGGER.warning("My first logging warning message from async_setup")
     print(f"Hello from init, async_setup. Domain: {DOMAIN}")
     print(f"Config: {config}")
     hass.data.setdefault(DOMAIN, {})
