@@ -101,21 +101,22 @@ class DamperCover(CoverEntity):
 
         # Additional custom attributes for the Damper implementation of Cover:
         # Note: The value of these attributes are loaded from the damper object
-        self._damper._attributes = {
-            "Modbus Address": self._damper._modbus_address,
-            "Type ASN": self._damper._type_asn,
-            "Manufacturing Date": self._damper._manufacturing_date,
-            "Factory Index": self._damper._factory_index,
-            "Factory Seq Num": self._damper._factory_seq_num,
-            "Last runtime close": self._damper._runtime_close,
-            "Last runtime open": self._damper._runtime_open,
-            "Last power": self._damper._power,
-            "Last overall indicator": self._damper._overall_indicator,
-            "Last runtime close indicator": self._damper._runtime_close_indicator,
-            "Last runtime open indicator": self._damper._runtime_open_indicator,
-            "Last power indicator": self._damper._power_indicator,
-            "Last tested at": self._damper._tested_at,
-        }
+        # # Removed the following. It is not required here, but most likely only further down....
+        # self._damper._attributes = {
+        #     "Modbus Address": self._damper._modbus_address,
+        #     "Type ASN": self._damper._type_asn,
+        #     "Manufacturing Date": self._damper._manufacturing_date,
+        #     "Factory Index": self._damper._factory_index,
+        #     "Factory Seq Num": self._damper._factory_seq_num,
+        #     "Last runtime close": self._damper._runtime_close,
+        #     "Last runtime open": self._damper._runtime_open,
+        #     "Last power": self._damper._power,
+        #     "Last overall indicator": self._damper._overall_indicator,
+        #     "Last runtime close indicator": self._damper._runtime_close_indicator,
+        #     "Last runtime open indicator": self._damper._runtime_open_indicator,
+        #     "Last power indicator": self._damper._power_indicator,
+        #     "Last tested at": self._damper._tested_at,
+        # }
 
     @property
     def unique_id(self):
