@@ -28,8 +28,8 @@ TEST_CRITERIA = {
     },
     "GDB111.1E/MO": {"RUNTIME_OPEN_MAX": 98, "RUNTIME_CLOSE_MAX": 22, "POWER_MAX": 3.0},
     "GRA999-virtual": {
-        "RUNTIME_OPEN_MAX": 60,
-        "RUNTIME_CLOSE_MAX": 22,
+        "RUNTIME_OPEN_MAX": 71,
+        "RUNTIME_CLOSE_MAX": 30,
         "POWER_MAX": 3.0,
     },
     "GRA126": {
