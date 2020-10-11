@@ -5,6 +5,12 @@ import {
   css,
 } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 
+import { classMap } from 'https://unpkg.com/lit-html/directives/class-map.js?module';
+
+// import { LitElement, html, css } from 'lit-element';
+// import { classMap } from 'lit-html/directives/class-map';
+
+
 class DamperPanel extends LitElement {
   static get properties() {
     return {
@@ -56,15 +62,15 @@ class DamperPanel extends LitElement {
               <td>${this.hass.states[i].attributes["Last runtime open"]}</td>
               <td>${this.hass.states[i].attributes["Last runtime close"]}</td>
               <td>${this.hass.states[i].attributes["Last power"]}</td>
-              <td>
+              <td class=${classMap({ failure: this.hass.states[i].attributes["Last runtime open indicator"] == 'FAILURE' })}>
               ${this.hass.states[i].attributes["Last runtime open indicator"]}
               </td>
-              <td>
+              <td class=${classMap({ failure: this.hass.states[i].attributes["Last runtime close indicator"] == 'FAILURE' })}>
               ${this.hass.states[i].attributes[
             "Last runtime close indicator"
             ]}
             </td>
-            <td>${this.hass.states[i].attributes["Last power indicator"]}</td>
+            <td class=${classMap({ failure: this.hass.states[i].attributes["Last power indicator"] == 'FAILURE' })}>${this.hass.states[i].attributes["Last power indicator"]}</td>
             <td>${this.hass.states[i].attributes["Last tested at"]}</td>
             </tr>
             `
@@ -85,27 +91,37 @@ class DamperPanel extends LitElement {
   static get styles() {
     return css`
       : host {
-  // background - color: #fafafa;
-  background - color: grey;
-  padding: 16px;
-  display: block;
-}
-wired - card {
-  background - color: white;
-  padding: 16px;
-  display: block;
-  font - size: 18px;
-  max - width: 800;
-  margin: 0 auto;
-}
+        // background - color: #fafafa;
+        background - color: grey;
+        padding: 16px;
+        display: block;
+      }
+      wired - card {
+        // background - color: white;
+        padding: 16px;
+        display: block;
+        font - size: 18px;
+        max - width: 800;
+        margin: 0 auto;
+      }
 
-table, th, td {
-  border: 1px solid black;
-  border-collapse: collapse;
-  padding: 15px
-}
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        padding: 15px
+      }
 
-`;
+      .pass {
+        background-color: green;
+      }
+      .warning {
+        background-color: yellow;
+      }
+      .failure {
+        background-color: red;
+      }
+
+      `;
   }
 
 }
