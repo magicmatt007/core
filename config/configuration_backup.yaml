@@ -9,8 +9,8 @@ logger:
   logs:
     custom_components.damper: debug
 
-frontend:
-  development_repo: /workspaces/frontend/
+# frontend:
+#   development_repo: /workspaces/frontend/
 
 group: !include groups.yaml
 automation: !include automations.yaml
@@ -20,7 +20,7 @@ scene: !include scenes.yaml
 panel_custom:
   - name: damper-panel
     # url_path needs to be unique for each panel_custom config
-    url_path: redirect-server-controls
+    url_path: damper-panel
     sidebar_title: Damper Panel
     sidebar_icon: mdi:server
     module_url: /local/damper-panel.js
