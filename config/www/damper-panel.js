@@ -1,4 +1,5 @@
 import "https://unpkg.com/wired-card@2.1.0/lib/wired-card.js?module";
+import "https://unpkg.com/wired-button@2.1.0/lib/wired-button.js?module";
 import {
   LitElement,
   html,
@@ -47,7 +48,7 @@ class DamperPanel extends LitElement {
         pass: this.hass.states[entity_id].attributes[attr] == 'PASS'
       })}>${this.hass.states[entity_id].attributes[attr]}</td>`)}
                             <td>${this.hass.states[entity_id].state}</td>
-                            <td><button @click="${e => this.callServiceTest(entity_id)}">Click me</button></td>
+                            <td><wired-button @click="${e => this.callServiceTest(entity_id)}">Click me</wired-button></td>
                             </tr>
                             `;
     const rows = Object.keys(this.hass.states)
@@ -78,6 +79,7 @@ class DamperPanel extends LitElement {
 
     return html`
     <wired-card elevation="2">
+    <wired-button elevation="3" class="large" @click="${e => this.callServiceTest("all")}">Test all</wired-button>
     <table>
     ${header}
     ${rows}
@@ -180,20 +182,32 @@ class DamperPanel extends LitElement {
         padding: 15px
       }
       th {
-        background-color: lightgrey;
+        background-color: #17a2b8;
+        color: white
       }
 
       .pass {
-        background-color: green;
+        background-color: #28a745;
         color: white
       }
       .warning {
-        background-color: orange;
+        background-color: #ffc107;
         color: black
       }
       .failure {
-        background-color: red;
-        color: black
+        background-color: #dc3545;
+        color: white
+      }
+      button {
+        background-color: yellow
+      }
+      wired-button {
+        color: #fff;
+        background-color: #007bff;
+        border-color: #007bff;
+      }
+      .large {
+        font-size: 24px;
       }
 
       `;
