@@ -238,10 +238,28 @@ class Damper:
         self._is_opening = False
 
         self._target_position = 0
-        self._current_position = 0
+        self._current_position = (
+            100  # TODO: Check, if this opens also physical dampers (most likely not)
+        )
+
+        # Testing:
+        self.reset_test()
         self._currently_testing = False
 
+        # # Startup position for Damper = open:
+        # self.set_position(100)
+
         print(f"Damper DICT in Damper.__init__: {self.__dict__}")
+
+    def reset_test(self):
+        self._runtime_open = None
+        self._runtime_close = None
+        self._power = None
+        self._overall_indicator = None
+        self._runtime_close_indicator = None
+        self._runtime_open_indicator = None
+        self._power_indicator = None
+        self._tested_at = None
 
     @property
     def position(self):
@@ -375,6 +393,8 @@ class Damper:
             print(
                 f"Damper is not yet testing. Starting now {self.name}, {self._modbus_address}"
             )
+
+        self.reset_test()
 
         # Close Damper:
         if VIRTUAL_MODBUS_DEBUG:

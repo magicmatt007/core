@@ -63,6 +63,9 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
     if new_devices:
         async_add_devices(new_devices)
 
+    # for damper_entity in new_devices:
+    #     await damper_entity.async_open_cover()
+
     platform = entity_platform.current_platform.get()
 
     # This will call Entity.set_sleep_timer(sleep_time=VALUE)
