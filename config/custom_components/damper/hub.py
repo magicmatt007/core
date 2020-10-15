@@ -20,7 +20,9 @@ from .const import (
 
 import json
 import asyncio
-from datetime import date, datetime
+from datetime import date, datetime, timezone
+import time
+from dateutil import tz
 from enum import Enum
 
 ### Imports from within this project:
@@ -482,7 +484,11 @@ class Damper:
         self._overall_indicator = _indicator.name
 
         # self._tested_at = str(datetime.now())
-        self._tested_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        utc_now = datetime.now(timezone.utc)
+        local_now = utc_now.astimezone(tz.gettz("Europe/Zurich"))
+        self._tested_at = local_now.strftime("%Y-%m-%d %H:%M:%S")
+
+        # self._tested_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def indicator(self, ratio, fail, warn):
         if ratio > fail:
