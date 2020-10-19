@@ -72,10 +72,13 @@ class DamperPanel extends LitElement {
 
 
     return html`
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+
       <wired-card elevation="2">
       <wired-button elevation="3" class="large" @click="${e => this.callServiceTest("all")}">Test all</wired-button>
       <br>
       <br>
+      <div class="table table-responsive">
       <table>
       <tr>
       <th>Modbus <br>Address</th>
@@ -98,7 +101,11 @@ class DamperPanel extends LitElement {
             <td>${this.hass.states[i].attributes["Modbus Address"]}</td>
             <td>${this.hass.states[i].attributes["friendly_name"]}</td>
             <td>${this.hass.states[i].attributes["Type ASN"]}</td>
-            <td>${this.hass.states[i].state}</td>
+            <td class=${classMap({
+              pass: this.hass.states[i].state == 'open',
+              warning: ['closing', 'opening'].includes(this.hass.states[i].state),
+              failure: this.hass.states[i].state == 'closed',
+            })}>${this.hass.states[i].state}</td>
             <td>${this.hass.states[i].attributes["current_position"]}%</td>
             <td><wired-button elevation="3" @click="${e => this.callServiceTest(this.hass.states[i]["entity_id"])}">Test me</wired-button></td>
             <td class=${classMap({
@@ -125,7 +132,38 @@ class DamperPanel extends LitElement {
         )
       }
       </table>
+      </div>
+      <br>
+
+      <button type="button" class="btn btn-primary">Primary</button>
+      <button type="button" class="btn btn-secondary">Secondary</button>
+      <button type="button" class="btn btn-success">Success</button>
+      <button type="button" class="btn btn-danger">Danger</button>
+      <button type="button" class="btn btn-warning">Warning</button>
+      <button type="button" class="btn btn-info">Info</button>
+      <button type="button" class="btn btn-light">Light</button>
+      <button type="button" class="btn btn-dark">Dark</button>
+      <br>
+      <br>
+
+      <div class="container">
+  <div class="row">
+    <div class="col-sm p-3 mb-2 bg-primary text-white">
+      One of three columns
+    </div>
+    <div class="col-sm p-3 mb-2 bg-secondary text-white">
+      One of three columns
+    </div>
+    <div class="col-sm p-3 mb-2 bg-warning text-black">
+      One of three columns
+    </div>
+  </div>
+</div>
+
       </wired - card >
+
+      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
       `;
 
   }
@@ -134,6 +172,12 @@ class DamperPanel extends LitElement {
     // this.hass.callService(this.domain, this.service, this.serviceData);
     console.log('Clicked me!');
     console.log(entity_id);
+
+    // if (navigator.platform != 'iPhone' || 'iPad') { window.navigator.vibrate(200); }
+    try {  // Apple devices don't support vibrate
+      window.navigator.vibrate(200);
+    } catch (err) { console.log(err); };
+
     this.hass.callService('damper', 'test_damper', { 'entity_id': entity_id })
   }
 
