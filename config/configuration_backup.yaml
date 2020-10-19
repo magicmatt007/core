@@ -23,7 +23,7 @@ panel_custom:
     url_path: damper-panel
     sidebar_title: Damper Panel
     sidebar_icon: mdi:server
-    module_url: /local/damper-panel.js
+    module_url: /local/damper-panel.js?v=2
     config:
       # Data you want to make available to panel
       hello: world
