@@ -37,128 +37,57 @@ class BootstrapPanel extends LitElement {
     return html`
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
 
-    Hello World
-
-
     <div class="container">
 
-
-
-
-    <div class="table table-responsive">
-    <table>
-    <tr>
-    <th>Modbus <br>Address</th>
-    <th>Name</th>
-    <th>Model</th>
-    <th>State</th>
-    <th>Current <br>position</th>
-    <th>Test now</th>
-    <th>Last runtime <br>open</th>
-    <th>Last runtime <br>close</th>
-    <th>Last power</th>
-    <th>Last tested <br>at</th>
-    </tr>
+    <div class="row align-items-end">
     ${Object.keys(this.hass.states)
         .filter((i) => i.startsWith("cover."))
         .map(
           (i) =>
             html`
-        <tr>
-          <td>${this.hass.states[i].attributes["Modbus Address"]}</td>
-          <td>${this.hass.states[i].attributes["friendly_name"]}</td>
-          <td>${this.hass.states[i].attributes["Type ASN"]}</td>
-          <td class=${classMap({
-              pass: this.hass.states[i].state == 'open',
-              warning: ['closing', 'opening'].includes(this.hass.states[i].state),
-              failure: this.hass.states[i].state == 'closed',
-            })}>${this.hass.states[i].state}</td>
-          <td>${this.hass.states[i].attributes["current_position"]}%</td>
-          <td><wired-button elevation="3" @click="${e => this.callServiceTest(this.hass.states[i]["entity_id"])}">Test me</wired-button></td>
-          <td class=${classMap({
-              failure: this.hass.states[i].attributes["Last runtime open indicator"] == 'FAILURE',
-              warning: this.hass.states[i].attributes["Last runtime open indicator"] == 'WARNING',
-              pass: this.hass.states[i].attributes["Last runtime open indicator"] == 'PASS'
-            })}> ${this.hass.states[i].attributes["Last runtime open"]}s</td>
-          <td class=${classMap({
-              failure: this.hass.states[i].attributes["Last runtime close indicator"] == 'FAILURE',
-              warning: this.hass.states[i].attributes["Last runtime close indicator"] == 'WARNING',
-              pass: this.hass.states[i].attributes["Last runtime close indicator"] == 'PASS'
-            })}> ${this.hass.states[i].attributes["Last runtime close"]}s</td>
-          <td class=${classMap({
-              failure: this.hass.states[i].attributes["Last power indicator"] == 'FAILURE',
-              warning: this.hass.states[i].attributes["Last power indicator"] == 'WARNING',
-              pass: this.hass.states[i].attributes["Last power indicator"] == 'PASS'
-            })}>
-              ${this.hass.states[i].attributes["Last power"]}W</td>
-          <td>${this.hass.states[i].attributes["Last tested at"]}</td>
-          </tr>
-          `
+            <div class="'col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 pb-1">
+            <button type="button" class="btn w-100 btn-success" @click="${e => this.callServiceTest(this.hass.states[i]["entity_id"])}">
+            <div>${this.hass.states[i].attributes["friendly_name"]}</div>
+            </button>
+            </div>
+            `)}
+            </div>
+            <div class="row align-items-end">
+            ${Object.keys(this.hass.states)
+        .filter((i) => i.startsWith("cover."))
+        .map(
+          (i) =>
+            html`
+                <div class='col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 pb-1'>
 
+                <button type="button"
+                class="
+                btn
+                w-74
+                test-running"
+                >
+                <div>${this.hass.states[i].attributes["friendly_name"]}</div>
+                </button>
 
-        )
-      }
-    </table>
-    </div>
+                <button @click="${e => this.callServiceTest(this.hass.states[i]["entity_id"])} type="button"
+                class="
+                btn w-25 float-right btn-primary">
+                Test
+                </button>
+                </div>
+                `)}
 
+        </div>
+        </div>
 
 
 
 
-    <button type="button" class="btn btn-primary">Primary</button>
-    <button type="button" class="btn btn-secondary">Secondary</button>
-    <button type="button" class="btn btn-success">Success</button>
-    <button type="button" class="btn btn-danger">Danger</button>
-    <button type="button" class="btn btn-warning">Warning</button>
-    <button type="button" class="btn btn-info">Info</button>
-    <button type="button" class="btn btn-light">Light</button>
-    <button type="button" class="btn btn-dark">Dark</button>
-    <br>
-    <br>
-
-    <div class="row">
-    <div class="col-sm p-3 mb-2 bg-primary text-white">
-    One of three columns
-    </div>
-    <div class="col-sm p-3 mb-2 bg-secondary text-white">
-    One of three columns
-    </div>
-    <div class="col-sm p-3 mb-2 bg-warning text-black">
-    One of three columns
-    </div>
-    </div>
-
-    <div class="row align-items-end">
-
-    <!-- Print all dampers in this group: -->
-    <div class="'col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 pb-1">
-
-    <button type="button" class="btn w-100 btn-success">
-    <div>Modbus: {{d.modbus_address}}</div>
-          </button>
-          <button type="button" class="btn w-100 btn-success">
-            <div>Modbus: {{d.modbus_address}}</div>
-          </button>
-          <button type="button" class="btn w-100 btn-success">
-            <div>Modbus: {{d.modbus_address}}</div>
-          </button>
-          <button type="button" class="btn w-100 btn-success">
-            <div>Modbus: {{d.modbus_address}}</div>
-          </button>
-          <button type="button" class="btn w-100 btn-success">
-            <div>Modbus: {{d.modbus_address}}</div>
-          </button>
-
-
-      </div>  <!-- end of loop dampers -->
-
-      </div>
-      </div>
 
 
       <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
-      `;
+    `;
 
   }
 
@@ -166,61 +95,79 @@ class BootstrapPanel extends LitElement {
     // this.hass.callService(this.domain, this.service, this.serviceData);
     console.log('Clicked me!');
     console.log(entity_id);
+    // if (navigator.platform != 'iPhone' || 'iPad') { window.navigator.vibrate(200); }
+    try {  // Apple devices don't support vibrate
+      window.navigator.vibrate(200);
+    } catch (err) { console.log(err); };
+
     this.hass.callService('damper', 'test_damper', { 'entity_id': entity_id })
   }
 
   static get styles() {
     return css`
       : host {
-        // background - color: #fafafa;
-        background - color: grey;
-        padding: 16px;
-        display: block;
-      }
-      wired - card {
-        // background - color: white;
-        padding: 16px;
-        display: block;
-        font - size: 18px;
-        max - width: 800;
-        margin: 0 auto;
-      }
+      // background - color: #fafafa;
+      background - color: grey;
+      padding: 16px;
+      display: block;
+    }
+    wired - card {
+      // background - color: white;
+      padding: 16px;
+      display: block;
+      font - size: 18px;
+      max - width: 800;
+      margin: 0 auto;
+    }
 
-      table, th, td {
-        border: 1px solid black;
-        border-collapse: collapse;
-        padding: 15px
-      }
-      th {
-        background-color: #17a2b8;
-        color: white
-      }
+    table, th, td {
+      border: 1px solid black;
+      border - collapse: collapse;
+      padding: 15px
+    }
+    th {
+      background - color: #17a2b8;
+      color: white
+    }
 
       .pass {
-        background-color: #28a745;
-        color: white
-      }
+      background - color: #28a745;
+      color: white
+    }
       .warning {
-        background-color: #ffc107;
-        color: black
-      }
+      background - color: #ffc107;
+      color: black
+    }
       .failure {
-        background-color: #dc3545;
-        color: white
-      }
-      button {
-        background-color: yellow
-      }
-      wired-button {
-        color: #fff;
-        background-color: #007bff;
-        border-color: #007bff;
-      }
+      background - color: #dc3545;
+      color: white
+    }
+    button {
+      background - color: yellow
+    }
+    wired - button {
+      color: #fff;
+      background - color: #007bff;
+      border - color: #007bff;
+    }
       .large {
-        font-size: 24px;
-      }
+      font - size: 24px;
+    }
 
-      `;
+    .test-running {
+      background: linear-gradient(to right,lightgrey 50%, white 50%);
+      background-size: 200% 100%;
+      transition: all 1s linear;
+      border: 1px solid black;
+    }
+
+    .w-74 {
+      width: 74% !important;
+    }
+
+
+
+    `;
   }
 
 }
