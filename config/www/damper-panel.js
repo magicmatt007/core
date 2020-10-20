@@ -133,32 +133,6 @@ class DamperPanel extends LitElement {
       }
       </table>
       </div>
-      <br>
-
-      <button type="button" class="btn btn-primary">Primary</button>
-      <button type="button" class="btn btn-secondary">Secondary</button>
-      <button type="button" class="btn btn-success">Success</button>
-      <button type="button" class="btn btn-danger">Danger</button>
-      <button type="button" class="btn btn-warning">Warning</button>
-      <button type="button" class="btn btn-info">Info</button>
-      <button type="button" class="btn btn-light">Light</button>
-      <button type="button" class="btn btn-dark">Dark</button>
-      <br>
-      <br>
-
-      <div class="container">
-  <div class="row">
-    <div class="col-sm p-3 mb-2 bg-primary text-white">
-      One of three columns
-    </div>
-    <div class="col-sm p-3 mb-2 bg-secondary text-white">
-      One of three columns
-    </div>
-    <div class="col-sm p-3 mb-2 bg-warning text-black">
-      One of three columns
-    </div>
-  </div>
-</div>
 
       </wired - card >
 
