@@ -3,6 +3,7 @@ import logging
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.core import callback
 
 # from homeassistant import data_entry_flow
 # from . import get_coordinator
@@ -157,50 +158,35 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-        # async def async_step_finish(self, user_input=None):
-        #     # Specify items in the order they are to be displayed in the UI
-        #     errors = {}
-        #     data_schema = {
-        #         vol.Required("meal"): str,
-        #         vol.Required("unlock", default=False): bool,
-        #     }
-
-        #     data_schema["allow_groups"]: bool
-
-        #     if user_input is not None:
-        #         print(user_input)
-        #         if user_input["unlock"]:
-        #             return self.async_create_entry(
-        #                 title="Title of the entry",
-        #                 data={"something_special": user_input["meal"]},
-        #             )
-
-        #             # return self.async_show_form(
-        #             #     step_id="finish", data_schema=data_schema, errors=errors
-        #             # )
-
-        #         return self.async_abort(
-        #             reason="not_supported", description_placeholders="incompatible"
-        #         )
-
-        # if user_input is not None:
-        #     return self.async_create_entry(
-        #         title=user_input[CONF_NAME],
-        #         data={
-        #             CONF_HOST: device.host[0],
-        #             CONF_MAC: device.mac.hex(),
-        #             CONF_TYPE: device.devtype,
-        #             CONF_TIMEOUT: device.timeout,
-        #         },
-        #     )
-
-        return self.async_show_form(
-            step_id="finish", data_schema=vol.Schema(data_schema), errors=errors
-        )
-
-        # if self.show_advanced_options:
-        #     data_schema["allow_groups"]: bool
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry):
+        return OptionsFlowHandler(config_entry)
 
 
 # class InvalidHost(exceptions.HomeAssistantError):
 #     """Error to indicate there is an invalid hostname."""
+
+
+class OptionsFlowHandler(config_entries.OptionsFlow):
+    def __init__(self, config_entry):
+        """Initialize HACS options flow."""
+        self.config_entry = config_entry
+        self.options = dict(config_entry.options)
+
+    async def async_step_init(self, user_input=None):
+        """Manage the options."""
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(
+                        "show_things",
+                        default=self.config_entry.options.get("show_things"),
+                    ): bool
+                }
+            ),
+        )
