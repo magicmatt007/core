@@ -6,7 +6,7 @@
         "data": {
           "nextAddress": "Next Modbus address to be assigned3",
           "name": "Give this damper a name",
-          "group": "Crate a new group"
+          "group": "Create a new group"
         }
       },
       "finish": {
