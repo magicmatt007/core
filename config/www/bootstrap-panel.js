@@ -61,10 +61,16 @@ class BootstrapPanel extends LitElement {
                 <div class='col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 pb-1'>
 
                 <button type="button"
-                class="
-                btn
-                w-74
-                test-running"
+                class=${classMap({
+              btn: true,
+              'w-74': true,
+              'test-running': this.hass.states[i].attributes["Last overall indicator"] == null,
+              'btn-danger': this.hass.states[i].attributes["Last overall indicator"] == 'FAILURE',
+              'btn-warning': this.hass.states[i].attributes["Last overall indicator"] == 'WARNING',
+              'btn-success': this.hass.states[i].attributes["Last overall indicator"] == 'PASS'
+            })}
+
+                style="background-position: ${100 - this.hass.states[i].attributes["current_position"]}%"
                 >
                 <div>${this.hass.states[i].attributes["friendly_name"]}</div>
                 </button>
@@ -160,6 +166,33 @@ class BootstrapPanel extends LitElement {
       transition: all 1s linear;
       border: 1px solid black;
     }
+
+    .test-pass {
+      background: #28a745;
+      background-size: 200% 100%;
+      transition: all 0s linear;
+      // background-position: 0%;
+      color: white;
+    }
+
+    .test-warning {
+      background: $yellow; // #ffc107;
+      background-size: 200% 100%;
+      transition: all 0s linear;
+      // background-position: 0%;
+      color: black;
+    }
+
+    .test-failure {
+      background: $red; // #dc3545;
+      background-size: 200% 100%;
+      transition: all 0s linear;
+      // background-position: 0%;
+      color: white;
+    }
+
+
+
 
     .w-74 {
       width: 74% !important;
