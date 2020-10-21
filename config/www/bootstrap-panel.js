@@ -40,24 +40,26 @@ class BootstrapPanel extends LitElement {
     <div class="container-fluid">
 
     <div class="row align-items-end">
-    ${Object.keys(this.hass.states)
-        .filter((i) => i.startsWith("cover."))
-        .map(
-          (i) =>
-            html`
-            <div class="'col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 pb-1">
-            <button type="button" class="btn w-100 btn-success" @click="${e => this.callServiceTest(this.hass.states[i]["entity_id"])}">
-            <div>${this.hass.states[i].attributes["friendly_name"]}</div>
-            </button>
-            </div>
-            `)}
-            </div>
-            <div class="row align-items-end">
+      <div class="col col-sm-6 col-md-4 col-lg-4 col-xl-3 mt-5 mb-2">
+        <h4>
+          <span style="cursor: pointer;">All Dampers
+          <span
+              class"mdi-set mdi-arrow-collapse-vertical"
+              style="color: gray;">
+          </span>
+          </span>
+          <button @click="${e => this.callServiceTest("all")}"  class="btn btn-primary w-25 float-right">Test</button>
+        </h4>
+      </div>
+    </div>
+
+      <div class="row align-items-end">
             ${Object.keys(this.hass.states)
         .filter((i) => i.startsWith("cover."))
         .map(
           (i) =>
             html`
+
                 <div class='col-12 col-sm-6 col-md-4 col-lg-4 col-xl-3 pb-1'>
 
                 <button type="button"
@@ -85,10 +87,6 @@ class BootstrapPanel extends LitElement {
 
         </div>
         </div>
-
-
-
-
 
 
       <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
@@ -192,12 +190,13 @@ class BootstrapPanel extends LitElement {
     }
 
 
-
-
     .w-74 {
       width: 74% !important;
     }
 
+    * {
+      font-family: Arial, Helvetica, sans-serif;
+    }
 
 
     `;
