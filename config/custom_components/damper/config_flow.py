@@ -1,6 +1,10 @@
 import logging
 
 import voluptuous as vol
+import serial.tools.list_ports
+
+# from zigpy.config import CONF_DEVICE, CONF_DEVICE_PATH
+
 
 from homeassistant import config_entries
 from homeassistant.core import callback
@@ -20,28 +24,7 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     _availableAddresses = None
-    _availableAddresses = [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        7,
-        8,
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19,
-        20,
-    ]
+    _availableAddresses = range(1, 20)
 
     _availableGroups = None
     _availableGroups = ["Create a new group", "Group 1", "Group 2"]
@@ -50,6 +33,37 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     FILE = None
 
     async def async_step_user(self, user_input=None):
+        CONF_MANUAL_PATH = "Enter Manually"
+        ports = await self.hass.async_add_executor_job(serial.tools.list_ports.comports)
+        print(f"Ports: {ports}")
+        list_of_ports = [
+            f"{p}, s/n: {p.serial_number or 'n/a'}"
+            + (f" - {p.manufacturer}" if p.manufacturer else "")
+            for p in ports
+        ]
+        list_of_ports.append(CONF_MANUAL_PATH)
+        print(list_of_ports)
+
+        # # if user_input is not None:
+        # user_selection = user_input[CONF_DEVICE_PATH]
+        # if user_selection == CONF_MANUAL_PATH:
+        #     return await self.async_step_pick_radio()
+
+        # port = ports[list_of_ports.index(user_selection)]
+        # dev_path = await self.hass.async_add_executor_job(get_serial_by_id, port.device)
+        # auto_detected_data = await detect_radios(dev_path)
+        # if auto_detected_data is not None:
+        #     title = f"{port.description}, s/n: {port.serial_number or 'n/a'}"
+        #     title += f" - {port.manufacturer}" if port.manufacturer else ""
+        #     return self.async_create_entry(
+        #         title=title,
+        #         data=auto_detected_data,
+        #     )
+
+        # # did not detect anything
+        # self._device_path = dev_path
+        # return await self.async_step_pick_radio()
+
         # Specify items in the order they are to be displayed in the UI
         errors = {}
         print(user_input)
@@ -64,7 +78,8 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         data_schema = {
             vol.Required("name", default="Hub 1"): str,
-            vol.Required("com", default="/serialbyid/blabla"): str,
+            vol.Required("com", default=list_of_ports[0]): vol.In(list_of_ports),
+            # vol.Required("com", default="/serialbyid/blabla"): str,
         }
 
         return self.async_show_form(
@@ -173,6 +188,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         """Initialize HACS options flow."""
         self.config_entry = config_entry
         self.options = dict(config_entry.options)
+        print(f"Config_entry: {self.config_entry}")
+        print(f"Config_entry dict: {self.config_entry.data}")
+        print(f"Options: {self.options}")
 
     async def async_step_init(self, user_input=None):
         """Manage the options."""
