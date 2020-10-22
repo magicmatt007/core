@@ -43,6 +43,10 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         ]
         list_of_ports.append(CONF_MANUAL_PATH)
         print(list_of_ports)
+        print(f"HWID: {ports[0].hwid}")
+        print(f"VID: {ports[0].vid}")
+        print(f"PID: {ports[0].pid}")
+        print(f"description: {ports[0].description}")
 
         # # if user_input is not None:
         # user_selection = user_input[CONF_DEVICE_PATH]
