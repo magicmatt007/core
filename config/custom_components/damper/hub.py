@@ -329,10 +329,12 @@ class Damper:
 
         if self._current_position < position:
             while self._current_position < position:
+                print(f"Virtual position for {self.name}: {self._current_position}")
                 self._current_position += 1
                 await asyncio.sleep(runtime / 100)
         else:
             while self._current_position > position:
+                print(f"Virtual position for {self.name}: {self._current_position}")
                 self._current_position += -1
                 await asyncio.sleep(runtime / 100)
 
