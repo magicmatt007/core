@@ -34,9 +34,12 @@
   "options": {
     "step": {
       "init": {
+        "title": "PUSH Button Addressing - DEVICES",
         "data": {
-          "show_things": "Show Things",
-          "icon_path": "Icon path"
+          "nextAddress": "Next Modbus address to be assigned",
+          "name": "Give this damper a name",
+          "group": "Create a new group",
+          "finish": "Finish adding dampers"
         }
       }
     }

@@ -5,7 +5,6 @@ import serial.tools.list_ports
 
 # from zigpy.config import CONF_DEVICE, CONF_DEVICE_PATH
 
-
 from homeassistant import config_entries
 from homeassistant.core import callback
 
@@ -20,11 +19,10 @@ _LOGGER = logging.getLogger(__name__)
 class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
-    # CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_PUSH
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     _availableAddresses = None
-    _availableAddresses = range(1, 20)
+    _availableAddresses = list(range(1, 20))
 
     _availableGroups = None
     _availableGroups = ["Create a new group", "Group 1", "Group 2"]
@@ -43,10 +41,11 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         ]
         list_of_ports.append(CONF_MANUAL_PATH)
         print(list_of_ports)
-        print(f"HWID: {ports[0].hwid}")
-        print(f"VID: {ports[0].vid}")
-        print(f"PID: {ports[0].pid}")
-        print(f"description: {ports[0].description}")
+        if ports:
+            print(f"HWID: {ports[0].hwid}")
+            print(f"VID: {ports[0].vid}")
+            print(f"PID: {ports[0].pid}")
+            print(f"description: {ports[0].description}")
 
         # # if user_input is not None:
         # user_selection = user_input[CONF_DEVICE_PATH]
@@ -72,13 +71,11 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
         print(user_input)
 
-        FILE = self.hass.config.path("{}.pickle".format(DOMAIN))
-        print(f"File in config_flow.py: {FILE}")
+        FILE = self.hass.config.path("{}.pickle".format(DOMAIN)) # Stores hub data in file in Config folder
 
         if user_input is not None:
-            # hub = Hub("My Hub", "/serialbyid/bla")
-            self.hub = Hub(FILE, user_input["name"], user_input["com"])
-            return await self.async_step_devices()
+            self.hub = Hub(FILE, user_input["name"], user_input["com"])  # Create a new Hub instance
+            return await self.async_step_devices() # Next step: Ask user to add devices
 
         data_schema = {
             vol.Required("name", default="Hub 1"): str,
@@ -136,7 +133,6 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_devices(self, user_input=None):
         # Specify items in the order they are to be displayed in the UI
         errors = {}
-        print(user_input)
 
         if user_input is not None:
             # return self.async_abort
@@ -149,24 +145,17 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 )
 
             # Otherwise, add damper:
-            success = self.hub.modbusAssignAddress(
-                user_input["nextAddress"], user_input["name"]
-            )
+            success = self.hub.modbusAssignAddress(user_input["nextAddress"], user_input["name"])
             print(success)
             if success:
-                self.hub.print_hub()
                 self._availableAddresses.remove(user_input["nextAddress"])
             else:
                 print("Try again")
                 # TODO thow exception to display error on the UI
 
         data_schema = {
-            vol.Required(
-                "nextAddress", default=str(self._availableAddresses[0])
-            ): vol.In(self._availableAddresses),
-            vol.Optional(
-                "name", default="Modbus " + str(self._availableAddresses[0])
-            ): str,
+            vol.Required("nextAddress", default=str(self._availableAddresses[0])): vol.In(self._availableAddresses),
+            vol.Optional("name", default="Modbus " + str(self._availableAddresses[0])): str,
             vol.Optional("group"): vol.In(self._availableGroups),
             vol.Optional("finish", default=False): bool,
         }
@@ -177,6 +166,7 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
+    # This enables the Options button for the integration, which then calls the options flow:
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
@@ -188,27 +178,86 @@ class DamperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class OptionsFlowHandler(config_entries.OptionsFlow):
+
+    _availableAddresses = None
+    _availableAddresses = list(range(1, 20))
+
+    _availableGroups = None
+    _availableGroups = ["Create a new group", "Group 1", "Group 2"]
+
+    hub = None
+    FILE = None
+    RUN_ONCE = True
+
     def __init__(self, config_entry):
         """Initialize HACS options flow."""
         self.config_entry = config_entry
         self.options = dict(config_entry.options)
         print(f"Config_entry: {self.config_entry}")
+        print(f"Config_entry.entry_id: {self.config_entry.entry_id}")
         print(f"Config_entry dict: {self.config_entry.data}")
         print(f"Options: {self.options}")
+        # self.hub = self.hass.data[DOMAIN][self.config_entry.entry_id]
+        # print(f"Hub: {self.hub}")
 
     async def async_step_init(self, user_input=None):
         """Manage the options."""
+        # Specify items in the order they are to be displayed in the UI
+        errors = {}
+        if self.RUN_ONCE:
+            FILE = self.hass.config.path(f"{DOMAIN}.pickle") # Stores hub data in file in Config folder
+            self.hub = Hub(FILE, "", "")  # Create a new Hub instance
+            self.hub = self.hub.get_stored_data()
+            print("Created new hub and loaded data")
+            self.RUN_ONCE = False
+
         if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+            # return self.async_abort
+
+            if user_input["finish"]:
+                # Create hass entry for the hub (this also triggers __init__.py)
+                return self.async_create_entry(
+                    title=self.hub.name,
+                    data={"com": self.hub.com, "Comment": "Test integration"},
+                )
+
+            # Otherwise, add damper:
+            success = self.hub.modbusAssignAddress(user_input["nextAddress"], user_input["name"])
+            print(success)
+            if success:
+                self._availableAddresses.remove(user_input["nextAddress"])
+            else:
+                print("Try again")
+                # TODO thow exception to display error on the UI
+
+        data_schema = {
+            vol.Required("nextAddress", default=str(self._availableAddresses[0])): vol.In(self._availableAddresses),
+            vol.Optional("name", default="Modbus " + str(self._availableAddresses[0])): str,
+            vol.Optional("group"): vol.In(self._availableGroups),
+            vol.Optional("finish", default=False): bool,
+        }
 
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        "show_things",
-                        default=self.config_entry.options.get("show_things"),
-                    ): bool
-                }
-            ),
+            data_schema=vol.Schema(data_schema),
+            errors=errors,
         )
+
+
+
+    # async def async_step_init(self, user_input=None):
+    #     """Manage the options."""
+    #     if user_input is not None:
+    #         return self.async_create_entry(title="", data=user_input)
+
+    #     return self.async_show_form(
+    #         step_id="init",
+    #         data_schema=vol.Schema(
+    #             {
+    #                 vol.Required(
+    #                     "show_things",
+    #                     default=self.config_entry.options.get("show_things"),
+    #                 ): bool
+    #             }
+    #         ),
+    #     )

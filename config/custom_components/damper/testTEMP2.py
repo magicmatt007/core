@@ -1,20 +1,7 @@
-from const import (
-    DOMAIN,
-    VIRTUAL_MODBUS_DEBUG,
-    VIRTUAL_RUNTIME_OPEN,
-    VIRTUAL_RUNTIME_CLOSE,
-    VIRTUAL_RUNTIME_VAR_PERCENT,
-    TEST_CRITERIA,
-)
+DOMAIN = "DAMPER"
 
-# ratio = self._runtime_close / TEST_CRITERIA["GMA151"].RUNTIME_OPEN_MAX
 
-# print("VIRTUAL_RUNTIME_OPEN")
+# test = "{}.pickle".format(DOMAIN)
+test = f"{DOMAIN}.pickle"
 
-print(VIRTUAL_RUNTIME_OPEN)
-print(TEST_CRITERIA)
-
-model = "GMA161"
-print(TEST_CRITERIA["GMA151"]["RUNTIME_OPEN_MAX"])
-print(TEST_CRITERIA[model]["RUNTIME_OPEN_MAX"])
-# print(TEST_CRITERIA["GMA151"].RUNTIME_OPEN_MAX)
+print(test)

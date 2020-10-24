@@ -31,95 +31,54 @@ from homeassistant.const import (
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers import config_validation as cv, entity_platform, service
 
-
 from .const import DOMAIN
-
 from datetime import timedelta
 
-
 SCAN_INTERVAL = timedelta(seconds=1)
-
-SERVICE_SET_TIMER = "set_timer"
 SERVICE_TEST_DAMPER = "test_damper"
-
 
 async def async_setup_entry(hass, config_entry, async_add_devices):
     """Add cover for passed config_entry in HA."""
     print("hello from cover, async_setup_entry")
 
-    # The hub is loaded from the associated hass.data entry that was created in the
-    # __init__.async_setup_entry function
-    hub = hass.data[DOMAIN][config_entry.entry_id]
+    # The reference to the Hub instance is loaded from the associated hass.data entry that was created in the
+    # __init__.async_setup_entry function:
+    hub_obj = hass.data[DOMAIN][config_entry.entry_id]
 
-    # The next few lines find all of the entities that will need to be added
-    # to HA. Note these are all added to a list, so async_add_devices can be
-    # called just once.
+    # The next few lines find all of the entities that will need to be added to HA.
+    # Note these are all added to a list, so async_add_devices needs to be called just once.
     new_devices = []
-    for damper in hub.dampers:
-        print(f"Damper DICT: {damper.__dict__}")
-        damper_entity = DamperCover(damper)
-        new_devices.append(damper_entity)
-    # If we have any new devices, add them
-    if new_devices:
+    for damper in hub_obj.dampers:
+        cover_obj = Cover(damper) # Creates a (Damper)Cover instance for each Damper instance in Hub
+        new_devices.append(cover_obj)
+    if new_devices: # If we have any new devices, add them
         async_add_devices(new_devices)
 
-    # for damper_entity in new_devices:
-    #     await damper_entity.async_open_cover()
+    # TO DO: Open Damper when started:
+    # for cover_obj in new_devices:
+    #     await cover_obj.async_open_cover()
 
+
+    # Register Services:
     platform = entity_platform.current_platform.get()
-
-    # This will call Entity.set_sleep_timer(sleep_time=VALUE)
-    platform.async_register_entity_service(
-        SERVICE_SET_TIMER,
-        {
-            vol.Required("sleep_time"): cv.time_period,
-        },
-        "set_sleep_timer",
-    )
-
-    # This will call Entity.set_sleep_timer(sleep_time=VALUE)
-    platform.async_register_entity_service(
-        SERVICE_TEST_DAMPER,
-        {},
-        "test_damper",
-    )
+    platform.async_register_entity_service(SERVICE_TEST_DAMPER,{},"test_damper",)  # This service will call test_damper() on the instance
 
 
-class DamperCover(CoverEntity):
+class Cover(CoverEntity):
     """Representation of a Cover."""
 
     should_poll = True
 
-    def __init__(self, damper):
+    def __init__(self, damper): # Create a Cover instance, which stores a reference to the Damper instance
         """Initialize the damper."""
         self._damper = damper  # instance of class damper, stored in hub.py
-
-        # These attributes are currently not in the damper class. Should these be added??????
-        self._state = STATE_CLOSED
-        self._current_position = 0
-        self._is_closed = True
-        self._is_open = False
-        self._is_opening = False
-        self._is_closing = False
-
-        # Additional custom attributes for the Damper implementation of Cover:
-        # Note: The value of these attributes are loaded from the damper object
-        # # Removed the following. It is not required here, but most likely only further down....
-        # self._damper._attributes = {
-        #     "Modbus Address": self._damper._modbus_address,
-        #     "Type ASN": self._damper._type_asn,
-        #     "Manufacturing Date": self._damper._manufacturing_date,
-        #     "Factory Index": self._damper._factory_index,
-        #     "Factory Seq Num": self._damper._factory_seq_num,
-        #     "Last runtime close": self._damper._runtime_close,
-        #     "Last runtime open": self._damper._runtime_open,
-        #     "Last power": self._damper._power,
-        #     "Last overall indicator": self._damper._overall_indicator,
-        #     "Last runtime close indicator": self._damper._runtime_close_indicator,
-        #     "Last runtime open indicator": self._damper._runtime_open_indicator,
-        #     "Last power indicator": self._damper._power_indicator,
-        #     "Last tested at": self._damper._tested_at,
-        # }
+        self._state = None  # state must be initialized here already.  STATE_CLOSED
+        # # Removed this init values, as the update()) function takes care of it:
+        # self._current_position = 0
+        # self._is_closed = True
+        # self._is_open = False
+        # self._is_opening = False
+        # self._is_closing = False
 
     @property
     def unique_id(self):
@@ -131,7 +90,6 @@ class DamperCover(CoverEntity):
         """Information about this entity/device."""
         return {
             "identifiers": {(DOMAIN, self._damper._modbus_address)},
-            # If desired, the name for the device could be different to the entity
             "name": self._damper.name,
             "sw_version": self._damper._factory_index,
             "model": self._damper._type_asn,
@@ -141,7 +99,6 @@ class DamperCover(CoverEntity):
     @property
     def name(self):
         """Return the name of the damper."""
-        # return 'Example Damper'
         return self._damper.name
 
     @property
@@ -172,13 +129,7 @@ class DamperCover(CoverEntity):
     @property
     def current_cover_position(self):
         """Return the closed state of the damper."""
-        # print(f"Hello from damper.current_cover_position {time.time()}")
         return self._damper.position
-
-    # @property
-    # def unit_of_measurement(self):
-    #     """Return the unit of measurement."""
-    #     return TEMP_CELSIUS
 
     @property
     def device_class(self):
@@ -226,16 +177,12 @@ class DamperCover(CoverEntity):
         """Open the cover."""
         await self._damper.set_position(100)
 
-    async def async_open_cover_tilt(
-        self, **kwargs
-    ):  # ADDED for testing UI only. No implementation!
+    async def async_open_cover_tilt(self, **kwargs):  # ADDED for testing UI only. No implementation!
         """Open the cover tilt."""
-        print("Hello from async_open_cover_tilt")
         return
 
     async def async_set_cover_position(self, **kwargs):
         """Move the cover to a specific position."""
-
         await self._damper.set_position(kwargs[ATTR_POSITION])
 
     async def async_close_cover(self, **kwargs):
@@ -287,17 +234,6 @@ class DamperCover(CoverEntity):
             self._state = (
                 "UNKNOWN!"  # TODO: Is there an official Hassio state for this case??
             )
-
-    # async def custom_set_sleep_timer(self, entity, service_call):
-    #     await entity.set_sleep_timer(service_call.data["sleep_time"])
-
-    # async def set_sleep_timer(self, entity, service_call):
-    #     await entity.set_sleep_timer(service_call.data["sleep_time"])
-
-    async def set_sleep_timer(self, sleep_time):
-        print("Hello from set_sleep_timer")
-        # await entity.set_sleep_timer(sleep_time)
-        return
 
     async def test_damper(self):
         print("Hello from test_damper service")

@@ -17,6 +17,9 @@ automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
+recorder:
+  purge_keep_days: 5
+
 panel_custom:
   - name: damper-panel
     # url_path needs to be unique for each panel_custom config

@@ -47,13 +47,8 @@ class Indicator(Enum):
 
 
 class Hub:
-    manufacturer = "Demonstration Corp"
-
-    # def __init__(self,damper):
     def __init__(self, FILE, name, com):
-        # self.Main = None
         # self._hass = hass
-        print(f"FILE in hub init: {FILE}")
         self.FILE = FILE
         self._name = name
         self._com = com
