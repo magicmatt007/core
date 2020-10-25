@@ -36,14 +36,24 @@ async def async_setup(hass: HomeAssistant, config: dict):
 
 async def update_listener(hass, config_entry):
     """Handle options update."""
-    print("Hello from update_listener")
-    # TODO: Check, if this quick & dirty way of adding additional dampers via options flow creates any side effects:
-    # This creates each HA object for each platform your device requires.
-    # It's done by calling the `async_setup_entry` function in each platform module.
-    for component in PLATFORMS:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(config_entry, component)
-        )
+    print(f"Hello from update_listener. config_entry: {config_entry}")
+
+    # TODO: To make this work,
+    # it probalby needs to be somehow called in Cover.py and Sensor.py like in the async_setup_entry function
+    # This actually calls the async_unload_entry() first, which actually deletes the pickle file that stores the hub with all dampers.
+    # ... before calling the async_setup_entry(), which actaully NEEDS the pickle filre.... arghhhhh
+    # See also OneNote dumps
+    # -> Need to think about a different way
+    await hass.config_entries.async_reload(config_entry.entry_id)
+
+
+    # # TODO: Check, if this quick & dirty way of adding additional dampers via options flow creates any side effects:
+    # # This creates each HA object for each platform your device requires.
+    # # It's done by calling the `async_setup_entry` function in each platform module.
+    # for component in PLATFORMS:
+    #     hass.async_create_task(
+    #         hass.config_entries.async_forward_entry_setup(config_entry, component)
+    #     )
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
     """Set up Hello World from a config entry."""
