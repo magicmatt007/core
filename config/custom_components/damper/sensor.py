@@ -13,7 +13,7 @@ from homeassistant.const import (
     DEVICE_CLASS_ILLUMINANCE,
 )
 from homeassistant.helpers.entity import Entity
-from .const import DOMAIN
+from .const import DOMAIN, HUB
 
 from homeassistant.const import ATTR_VOLTAGE
 
@@ -29,10 +29,12 @@ UNIT_PERCENTAGE = "%"
 # required.
 async def async_setup_entry(hass, config_entry, async_add_devices):
     """Add sensors for passed config_entry in HA."""
-    hub = hass.data[DOMAIN][config_entry.entry_id]
+    # hub = hass.data[DOMAIN][config_entry.entry_id]
+    hub_obj = hass.data[DOMAIN][config_entry.entry_id][HUB]
+
 
     new_devices = []
-    for damper in hub.dampers:
+    for damper in hub_obj.dampers:
         new_devices.append(PositionSensor(damper))
         # new_devices.append(BatterySensor(damper))
         # new_devices.append(IlluminanceSensor(damper))
@@ -67,7 +69,7 @@ class SensorBase(Entity):
     # @property
     # def available(self) -> bool:
     #     """Return True if damper and hub is available."""
-    #     return self._damper.online and self._damper.hub.online
+    #     return self._damper.online and self._damper.hub_obj.online
 
     # async def async_added_to_hass(self):
     #     """Run when this Entity has been added to HA."""
@@ -94,7 +96,7 @@ class PositionSensor(SensorBase):
         super().__init__(damper)
         self._state = random.randint(
             0, 100
-        )  # TO DO: Replace with position from hub.damper
+        )  # TO DO: Replace with position from hub_obj.damper
 
     # As per the sensor, this must be a unique value within this domain. This is done
     # by using the device ID, and appending "_battery"

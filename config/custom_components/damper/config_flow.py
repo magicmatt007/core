@@ -209,6 +209,9 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             self.hub = Hub(FILE, "", "")  # Create a new Hub instance
             self.hub = self.hub.get_stored_data()
             print("Created new hub and loaded data")
+            for damper in self.hub.dampers:
+                print(damper._modbus_address)
+                self._availableAddresses.remove(damper._modbus_address)
             self.RUN_ONCE = False
 
         if user_input is not None:

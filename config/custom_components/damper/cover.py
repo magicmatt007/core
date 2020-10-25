@@ -31,7 +31,7 @@ from homeassistant.const import (
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers import config_validation as cv, entity_platform, service
 
-from .const import DOMAIN
+from .const import DOMAIN, HUB
 from datetime import timedelta
 
 SCAN_INTERVAL = timedelta(seconds=1)
@@ -40,10 +40,12 @@ SERVICE_TEST_DAMPER = "test_damper"
 async def async_setup_entry(hass, config_entry, async_add_devices):
     """Add cover for passed config_entry in HA."""
     print("hello from cover, async_setup_entry")
+    print(f"async_add_devices {async_add_devices}")
 
     # The reference to the Hub instance is loaded from the associated hass.data entry that was created in the
     # __init__.async_setup_entry function:
-    hub_obj = hass.data[DOMAIN][config_entry.entry_id]
+    # hub_obj = hass.data[DOMAIN][config_entry.entry_id]
+    hub_obj = hass.data[DOMAIN][config_entry.entry_id][HUB]
 
     # The next few lines find all of the entities that will need to be added to HA.
     # Note these are all added to a list, so async_add_devices needs to be called just once.

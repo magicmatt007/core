@@ -6,6 +6,9 @@ DOMAIN = "damper"
 ATTRIBUTION = f"Data provided by Matthias"
 # ATTRIBUTION = f"Data provided by {DEFAULT_SOURCE.NAME}"
 
+UNDO_UPDATE_LISTENER = "undo_update_listener"
+HUB = "hub"
+
 VIRTUAL_MODBUS_DEBUG = True
 VIRTUAL_RUNTIME_OPEN = 60
 VIRTUAL_RUNTIME_CLOSE = 20

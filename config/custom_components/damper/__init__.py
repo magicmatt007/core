@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant
 # from homeassistant.helpers import config_validation as cv, entity_platform, service
 
 from . import hub
-from .const import DOMAIN
+from .const import DOMAIN, UNDO_UPDATE_LISTENER, HUB
 from datetime import timedelta
 
 # List of platforms to support. There should be a matching .py file for each,
@@ -27,17 +27,30 @@ async def async_setup(hass: HomeAssistant, config: dict):
     _LOGGER.warning("My first logging warning message from async_setup")
     print(f"Hello from init, async_setup. Domain: {DOMAIN}")
     print(f"Config: {config}")
+    print("-----------------")
 
     hass.data.setdefault(DOMAIN, {})
 
     # Return boolean to indicate that initialization was successfully.
     return True
 
+async def update_listener(hass, config_entry):
+    """Handle options update."""
+    print("Hello from update_listener")
+    # TODO: Check, if this quick & dirty way of adding additional dampers via options flow creates any side effects:
+    # This creates each HA object for each platform your device requires.
+    # It's done by calling the `async_setup_entry` function in each platform module.
+    for component in PLATFORMS:
+        hass.async_create_task(
+            hass.config_entries.async_forward_entry_setup(config_entry, component)
+        )
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
     """Set up Hello World from a config entry."""
     # Store an instance of the "connecting" class that does the work of speaking
     # with your actual devices.
+
+
     print(f"Hello from init, async_setup_entry.Domain: {DOMAIN}")
     print(f"Config Entry is: {config_entry}")
 
@@ -46,7 +59,17 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     hub_obj = hub.Hub(FILE, "My Hub", "/serialbyid/bla")  # TO DO: get NAME and COM from config entry . Note: Name and Com are anyway loaded from FILE....
     hub_obj = hub_obj.get_stored_data()
 
-    hass.data[DOMAIN][config_entry.entry_id] = hub_obj  # Stores a reference to the Hub instance in hass. -> Cover can refer to it
+    # unsub = entry.add_update_listener(update_listener)  # Required to manage updates via options flow
+    undo_listener = config_entry.add_update_listener(update_listener)  # Required to manage updates via options flow
+
+   # Stores a reference to the Hub instance in hass. -> Cover.py and Sensor.py can refer to it
+    hass.data[DOMAIN][config_entry.entry_id] = {
+        HUB: hub_obj,
+        UNDO_UPDATE_LISTENER: undo_listener,
+    }
+    # hass.data[DOMAIN][config_entry.entry_id] = hub_obj  # Stores a reference to the Hub instance in hass. -> Cover can refer to it
+
+
     # hass.data[DOMAIN][config_entry.entry_id] = hub.Hub(hass, entry.data["com"])
 
     # This creates each HA object for each platform your device requires.
@@ -61,7 +84,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     """Unload a config entry."""
     # This is called when an entry/configured device is to be removed. The class
     # needs to unload itself, and remove callbacks. See the classes for further
@@ -70,11 +93,14 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     unload_ok = all(
         await asyncio.gather(
             *[
-                hass.config_entries.async_forward_entry_unload(entry, component)
+                hass.config_entries.async_forward_entry_unload(config_entry, component)
                 for component in PLATFORMS
             ]
         )
     )
+
+    hass.data[DOMAIN][config_entry.entry_id][UNDO_UPDATE_LISTENER]()
+
     if unload_ok:
         FILE = hass.config.path("{}.pickle".format(DOMAIN))
         print(f"File in __init__.py, unload entry: {FILE}")
@@ -83,6 +109,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
         )  # TO DO: get NAME and COM from config entry
         hub_obj = hub_obj.delete_stored_data()
 
-        hass.data[DOMAIN].pop(entry.entry_id)
+        hass.data[DOMAIN].pop(config_entry.entry_id)
 
     return unload_ok
