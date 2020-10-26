@@ -166,6 +166,16 @@ class Hub:
             pickle.dump(self, myfile, pickle.HIGHEST_PROTOCOL)
         myfile.close()
 
+    def store_backup(self):
+        print("Saving backup data...")
+        print(f"FILE = {self.FILE}"+".backup")
+
+        # """Store to file."""
+        with open(self.FILE+".backup", "wb") as myfile:
+            pickle.dump(self, myfile, pickle.HIGHEST_PROTOCOL)
+        myfile.close()
+
+
     def delete_stored_data(self):
         print("Deleting data...")
         print(f"FILE = {self.FILE}")
@@ -177,6 +187,16 @@ class Hub:
 
     def get_stored_data(self):
         """Return stored data."""
+
+        if exists(self.FILE+".backup"):
+            print("Loading from backup")
+            with open(self.FILE+".backup", "rb") as myfile:
+                content = pickle.load(myfile)
+            myfile.close()
+            # os.remove(self.FILE+".backup")
+            os.rename(self.FILE + ".backup", self.FILE)
+            return content
+
         if not exists(self.FILE):
             print("File doesn't exist")
             return {}

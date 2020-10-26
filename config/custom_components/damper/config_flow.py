@@ -2,6 +2,7 @@ import logging
 
 import voluptuous as vol
 import serial.tools.list_ports
+from datetime import datetime
 
 # from zigpy.config import CONF_DEVICE, CONF_DEVICE_PATH
 
@@ -208,10 +209,13 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             FILE = self.hass.config.path(f"{DOMAIN}.pickle") # Stores hub data in file in Config folder
             self.hub = Hub(FILE, "", "")  # Create a new Hub instance
             self.hub = self.hub.get_stored_data()
+            # self.hub.store_backup()
             print("Created new hub and loaded data")
             for damper in self.hub.dampers:
                 print(damper._modbus_address)
-                self._availableAddresses.remove(damper._modbus_address)
+
+                if damper._modbus_address in self._availableAddresses:
+                    self._availableAddresses.remove(damper._modbus_address)
             self.RUN_ONCE = False
 
         if user_input is not None:
@@ -219,9 +223,10 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
             if user_input["finish"]:
                 # Create hass entry for the hub (this also triggers __init__.py)
+                self.hub.store_backup()
                 return self.async_create_entry(
                     title=self.hub.name,
-                    data={"com": self.hub.com, "Comment": "Test integration"},
+                    data={"com": self.hub.com, "Comment": str(datetime.now())},
                 )
 
             # Otherwise, add damper:

@@ -1,7 +1,3 @@
-DOMAIN = "DAMPER"
+from datetime import datetime
 
-
-# test = "{}.pickle".format(DOMAIN)
-test = f"{DOMAIN}.pickle"
-
-print(test)
+print(str(datetime.now()))

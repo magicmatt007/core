@@ -71,6 +71,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
     # unsub = entry.add_update_listener(update_listener)  # Required to manage updates via options flow
     undo_listener = config_entry.add_update_listener(update_listener)  # Required to manage updates via options flow
+    print("Created update listener")
 
    # Stores a reference to the Hub instance in hass. -> Cover.py and Sensor.py can refer to it
     hass.data[DOMAIN][config_entry.entry_id] = {
@@ -110,6 +111,7 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry):
     )
 
     hass.data[DOMAIN][config_entry.entry_id][UNDO_UPDATE_LISTENER]()
+    print(f"Deleted update listener. Unload ok? {unload_ok}")
 
     if unload_ok:
         FILE = hass.config.path("{}.pickle".format(DOMAIN))
