@@ -9,7 +9,7 @@ import random
 
 from homeassistant.const import (
     DEVICE_CLASS_BATTERY,
-    PERCENTAGE,
+    # UNIT_PERCENTAGE,
     DEVICE_CLASS_ILLUMINANCE,
 )
 from homeassistant.helpers.entity import Entity
@@ -17,7 +17,7 @@ from .const import DOMAIN
 
 from homeassistant.const import ATTR_VOLTAGE
 
-UNIT_PERCENTAGE = PERCENTAGE
+UNIT_PERCENTAGE = "%"
 
 # See cover.py for more details.
 # Note how both entities for each roller sensor (battry and illuminance) are added at

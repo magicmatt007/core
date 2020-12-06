@@ -83,15 +83,12 @@ class Roller:
 
     async def delayed_update(self):
         """Publish updates, with a random delay to emulate interaction with device."""
-        print(f"{self._id}: Start Sleeping....")
         await asyncio.sleep(random.randint(1, 10))
-        print(f"{self._id}: End Sleeping....")
         self.moving = 0
         await self.publish_updates()
 
     def register_callback(self, callback):
         """Register callback, called when Roller changes state."""
-        print(f"{self._id}: Register callback....")
         self._callbacks.add(callback)
 
     def remove_callback(self, callback):
@@ -102,10 +99,8 @@ class Roller:
     # notified of any state changeds for the relevant device.
     async def publish_updates(self):
         """Schedule call all registered callbacks."""
-        print(f"{self._id}: Publish updates....")
         self._current_position = self._target_position
         for callback in self._callbacks:
-            print(f"{self._id}: Publish updates CALLBACK()....")
             callback()
 
     @property

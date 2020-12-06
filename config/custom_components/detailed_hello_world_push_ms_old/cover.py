@@ -99,7 +99,8 @@ class HelloWorldCover(CoverEntity):
     def device_info(self):
         """Information about this entity/device."""
         return {
-            "identifiers": {(DOMAIN, self._roller.roller_id)},
+            "identifiers": {(DOMAIN, self._damper._modbus_address)},
+            # "identifiers": {(DOMAIN, self._roller.roller_id)},
             # If desired, the name for the device could be different to the entity
             "name": self.name,
             "sw_version": self._roller.firmware_version,
