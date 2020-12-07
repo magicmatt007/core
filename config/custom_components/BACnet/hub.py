@@ -49,6 +49,7 @@ class Roller:
         self._loop = asyncio.get_event_loop()
         self._target_position = 100
         self._current_position = 100
+        self._present_value = 0
         # Reports if the roller is moving up or down.
         # >0 is up, <0 is down. This very much just for demonstration.
         self.moving = 0
@@ -56,6 +57,9 @@ class Roller:
         # Some static information about this device
         self.firmware_version = "0.0.{}".format(random.randint(1, 9))
         self.model = "Test Device"
+
+    def setup(self):
+        self._loop.create_task(self.update_value_loop())
 
     @property
     def roller_id(self):
@@ -81,6 +85,14 @@ class Roller:
 
         self._loop.create_task(self.delayed_update())
 
+    async def update_value_loop(self):
+        while True:
+            print(f"{self._id}: Update loop going round ....")
+            pv = random.randint(1, 100)
+            self._present_value = pv
+            await asyncio.sleep(random.randint(1, 5))
+            await self.publish_updates()
+
     async def delayed_update(self):
         """Publish updates, with a random delay to emulate interaction with device."""
         print(f"{self._id}: Start Sleeping....")
@@ -92,6 +104,8 @@ class Roller:
     def register_callback(self, callback):
         """Register callback, called when Roller changes state."""
         print(f"{self._id}: Register callback....")
+        # This function is called from the compenent during initial set-up
+        # It allows the publish_updates function to push updates to the component, whenever the app wants to do so
         self._callbacks.add(callback)
 
     def remove_callback(self, callback):
@@ -113,6 +127,7 @@ class Roller:
     def present_value(self):
         """Return BACnet property present value"""
         return random.randint(0, 500)
+        # return self._present_value
 
     @property
     def description(self):

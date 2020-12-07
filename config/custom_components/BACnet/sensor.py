@@ -87,6 +87,7 @@ class BACnetSensor(SensorBase):
         """Initialize the sensor."""
         super().__init__(roller)
         self._state = random.randint(0, 100)
+        self._roller.setup()
 
     # As per the sensor, this must be a unique value within this domain. This is done
     # by using the device ID, and appending "_battery"
@@ -113,28 +114,9 @@ class BACnetSensor(SensorBase):
         attr = {
             "Vendor ID": "7",
             "Vendor Name": "Siemens",
+            "Under_score": "Test, if underscore is removed automatically",
         }
         return attr
-
-    # @property
-    # def device_state_attributes(self):
-    #     """Return device specific state attributes."""
-    #     self._damper._attributes = {
-    #         "Modbus Address": self._damper._modbus_address,
-    #         "Type ASN": self._damper._type_asn,
-    #         "Manufacturing Date": self._damper._manufacturing_date,
-    #         "Factory Index": self._damper._factory_index,
-    #         "Factory Seq Num": self._damper._factory_seq_num,
-    #         "Last runtime close": self._damper._runtime_close,
-    #         "Last runtime open": self._damper._runtime_open,
-    #         "Last power": self._damper._power,
-    #         "Last overall indicator": self._damper._overall_indicator,
-    #         "Last runtime close indicator": self._damper._runtime_close_indicator,
-    #         "Last runtime open indicator": self._damper._runtime_open_indicator,
-    #         "Last power indicator": self._damper._power_indicator,
-    #         "Last tested at": self._damper._tested_at,
-    #     }
-    #     return self._damper._attributes
 
     # The value of this sensor. As this is a DEVICE_CLASS_BATTERY, this value must be
     # the battery level as a percentage (between 0 and 100)
@@ -157,7 +139,7 @@ class BACnetSensor(SensorBase):
     def name(self):
         """Return the name of the sensor."""
         # return f"{self._roller.name} Battery"
-        return f"{self._roller.object_name}"
+        return f"{self._roller.description}"
 
 
 # This is another sensor, but more simple compared to the battery above. See the
