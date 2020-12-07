@@ -81,7 +81,7 @@ class BACnetSensor(SensorBase):
     # The class of this device. Note the value should come from the homeassistant.const
     # module. More information on the available devices classes can be seen here:
     # https://developers.home-assistant.io/docs/core/entity/sensor
-    device_class = None
+    # device_class = None
 
     def __init__(self, roller):
         """Initialize the sensor."""
