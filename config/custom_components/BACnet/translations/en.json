@@ -11,11 +11,11 @@
         "step": {
             "user": {
                 "data": {
-                    "host": "[%key:common::config_flow::data::host%]",
+                    "host": "Host",
                     "password": "[%key:common::config_flow::data::password%]",
                     "username": "[%key:common::config_flow::data::username%]"
                 }
             }
         }
-   }
+    }
 }
